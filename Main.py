@@ -7,6 +7,7 @@ Y = 0
 X = 0
 XDirection = 0
 YDirection = 0
+White = (255,255,255)
 Background = pygame.image.load("maptest.png")
 Character = pygame.image.load("character.png")
 screen = pygame.display.set_mode((1280, 720))
@@ -36,8 +37,11 @@ while Running:
         X = X - 1
     elif XDirection is 2:
         X = X + 1
-    screen.blit(Background, (X, Y))
     execfile("Character.py")
+    screen.fill(White)
+    screen.blit(Background, (X, Y))
+    screen.blit(Character2, ((Width / 2 - 32), (Height / 2 - 32)))
+
     pygame.display.flip()
 
 pygame.QUIT()      #When Running is not true it will quit
