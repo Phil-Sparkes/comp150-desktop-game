@@ -56,5 +56,5 @@ while Running:
 
     pygame.display.flip()       #Updates the display
 
-pygame.QUIT()      #When Running is not true it will quit
+pygame.quit()      #When Running is not true it will quit
 sys.exit()

@@ -1,12 +1,18 @@
 import pygame, math
-
+ObjectPos = (Width/2, Height/2)
 (MouseX, MouseY) = pygame.mouse.get_pos()     # Gets the position of the mouse
-MouseX2 = MouseX / 7.11111111111111111111111111111111     #Used for rotation tracking mouse
 
-if MouseY < 360:              #makes it rotate all the way around
-    MouseX2 = 360 - MouseX2
 
-Character2 = pygame.transform.rotate(Character, MouseX2 + 90)     # The code that does the rotation
+MouseX2 = MouseX
+MouseY2 = MouseY                        #Used for rotation tracking mouse
+MouseX2 = MouseX2 - ObjectPos[0]
+MouseY2 = MouseY2 - ObjectPos[1]
+Rotation = math.atan2(MouseX2, MouseY2) * 67.2958         #rotation equation
+print Rotation
+print MouseX2
+print MouseY2
+
+Character2 = pygame.transform.rotate(Character, Rotation + 180)     # The code that does the rotation
 
 MousePress,lele,lele = pygame.mouse.get_pressed()       #checks if mouse button 1 is pressed, ignore the "lele"
 
@@ -30,7 +36,7 @@ if BallSpawn is True:
 
     if -BallXSpeed/2 <= BallDestX  <= BallXSpeed/2 or -BallYSpeed/2 <= BallDestY  <=  BallYSpeed/2:  #Checks if ball has reaches destination
         pass
-    else:                 #this is the main update making the ball move
+    else:                 #this is the main update making the ball move """
         if BallDestX > 0:
             BallPosX = BallPosX + BallXSpeed
             BallDestX = BallDestX - BallXSpeed
