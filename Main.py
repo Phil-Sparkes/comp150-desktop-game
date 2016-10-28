@@ -52,7 +52,7 @@ while Running:
     screen.blit(Character2, (Width/2 - 32, Height/2 - 32))    #Draws the character in the center of the screen
 
     if BallSpawn is True:     #Draws a paintball if conditions are met
-        pygame.draw.circle(screen, Red, (BallPosX, BallPosY), 5)
+        pygame.draw.circle(screen, Red, BallPos, 5)
 
     pygame.display.flip()       #Updates the display
 
