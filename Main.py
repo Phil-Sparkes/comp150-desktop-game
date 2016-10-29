@@ -14,7 +14,7 @@ YDirection = 0   # 3 states, 0 = not moving, 1 = moving one direction, 2 = movin
 White = (255,255,255)      # Defines the colour white
 Red = (255,100,100)     #Defines the colour Red for later use
 Background = pygame.image.load("maptest.png")      #Map Image, Placeholder
-Character = pygame.image.load("character.png")     #Character image, Currently just a placeholder
+Character = pygame.image.load("character2.png")     #Character image, Currently just a placeholder
 screen = pygame.display.set_mode((Width, Height))      #Draws the screen
 Clock = pygame.time.Clock()   #Adds the clock
 
