@@ -1,5 +1,7 @@
-import pygame,sys
+import pygame, sys
 from pygame.locals import *
+
+pygame.init()
 
 Running = True   #Needed for the main loop
 
@@ -15,10 +17,53 @@ White = (255,255,255)      # Defines the colour white
 Red = (255,100,100)     #Defines the colour Red for later use
 Background = pygame.image.load("maptest.png")      #Map Image, Placeholder
 Character = pygame.image.load("character2.png")     #Character image, Currently just a placeholder
+RoombaModel = pygame.image.load("Art-assets/Roomba (passive).png")
 screen = pygame.display.set_mode((Width, Height))      #Draws the screen
 Clock = pygame.time.Clock()   #Adds the clock
 
 BallSpawn = False  #For the paintball spawn
+
+
+
+class Roomba:
+    def __init__(self):
+        # Choose a random position
+        self.pos_x = X
+        self.pos_y = Y
+
+        # Choose a random speed
+        self.speed_x = 0
+        self.speed_y = 2
+
+        self.rotate = 0
+
+
+    def update(self):
+        self.pos_x += self.speed_x
+        self.pos_y += self.speed_y
+
+        # Bounce off the walls
+        if self.pos_x < 0 or self.pos_x > Width:
+            self.speed_x = -self.speed_x
+
+        if self.pos_y < 0 or self.pos_y > Height:
+            self.speed_y = -self.speed_y
+            self.rotate += 180
+
+    def draw(self):
+
+        RoombaRotate = pygame.transform.rotate(RoombaModel, self.rotate)
+        screen.blit(RoombaRotate, (X + self.pos_x, Y + self.pos_y))
+
+roombas = []
+
+# Create balls
+num_roombas = 1
+for ball_index in xrange(num_roombas):
+    shape = Roomba
+    new_roomba = shape()
+    roombas.append(new_roomba)
+print roombas
 
 #MainLoop
 while Running:
@@ -37,20 +82,24 @@ while Running:
             if event.type == KEYDOWN and event.key == K_a: #On keypress w it will move the screen down
                 XDirection = 2
 
+
+
     if YDirection is 1:       #Changes the direction depending on key pressed
-        Y = Y - 1
+        Y = Y - 2
     elif YDirection is 2:
-        Y = Y + 1
+        Y = Y + 2
     if XDirection is 1:
-        X = X - 1
+        X = X - 2
     elif XDirection is 2:
-        X = X + 1
+        X = X + 2
 
     execfile("Character.py")  #Executes the Character python file
     screen.fill(White)   #Fills Screen white
     screen.blit(Background, (X, Y))     #Draws the background in relation to the player
     screen.blit(Character2, (Width/2 - 32, Height/2 - 32))    #Draws the character in the center of the screen
-
+    for roomba in roombas:
+        roomba.update()
+        roomba.draw()
     if BallSpawn is True:     #Draws a paintball if conditions are met
         pygame.draw.circle(screen, Red, BallPos, 5)
 
