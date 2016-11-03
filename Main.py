@@ -37,30 +37,44 @@ Clock = pygame.time.Clock()
 
 
 class Roomba:
-    def __init__(self):
+    def __init__(self, Xpos, Ypos, Distance, Rotation):
         # Choose a position
-        self.pos_x = X
-        self.pos_y = Y
+        self.pos_x = Xpos
+        self.pos_y = Ypos
+
+        self.start_x = Xpos
+        self.start_y = Ypos
+
+        self.dest_x = Xpos + Distance
+        self.dest_y = Ypos + Distance
+
+        self.rotate = Rotation
 
         # Choose a speed
-        self.speed_x = 0
-        self.speed_y = 2
+        if self.rotate == 90 or self.rotate == 270:
+            self.speed_x = 2
+            self.speed_y = 0
+        else:
+            self.speed_x = 0
+            self.speed_y = 2
 
-        self.rotate = 0
 
 
     def update(self):
+
         self.pos_x += self.speed_x
         self.pos_y += self.speed_y
 
         # Turn around
-        if self.pos_x < 0 or self.pos_x > Width:
-            self.speed_x = -self.speed_x
-            self.rotate += 180
+        if self.speed_x == 2:
+            if self.pos_x < self.start_x or self.pos_x > self.dest_x:
+                self.speed_x = -self.speed_x
+                self.rotate += 180
 
-        if self.pos_y < 0 or self.pos_y > Height:
-            self.speed_y = -self.speed_y
-            self.rotate += 180
+        elif self.speed_y == 2:
+            if self.pos_y < self.start_y or  self.pos_y > self.dest_y:
+                self.speed_y = -self.speed_y
+                self.rotate += 180
 
     def draw(self):
         # Draws the roomba
@@ -72,10 +86,11 @@ roombas = []
 
 
 # Create roombas
-num_roombas = 1
-for ball_index in xrange(num_roombas):
-    new_roomba = Roomba()
-    roombas.append(new_roomba)
+Roomba1 = Roomba(0 ,0, 200, 90)
+roombas.append(Roomba1)
+
+Roomba2 = Roomba(600, -400, 500, 0)
+roombas.append(Roomba2)
 
 # MainLoop
 while Running:
