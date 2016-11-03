@@ -1,35 +1,55 @@
-import pygame, math
+import pygame
+import math
 
-ObjectPos = (Width/2, Height/2)
+# Gets the position of the character
+CharacterPos = (Width/2, Height/2)
 
-(MouseX, MouseY) = pygame.mouse.get_pos()     # Gets the position of the mouse
+# Gets the position of the mouse
+(MouseX, MouseY) = pygame.mouse.get_pos()
 
-def sub(u, v):             #Function for finding the vector
+# Function for finding the vector
+def sub(u, v):
     return [ u[i]-v[i] for i in range(len(u)) ]
 
+# Used for rotation tracking mouse
 MouseX2 = MouseX
-MouseY2 = MouseY                        #Used for rotation tracking mouse
-MouseX2 = MouseX2 - ObjectPos[0]
-MouseY2 = MouseY2 - ObjectPos[1]
+MouseY2 = MouseY
+MouseX2 = MouseX2 - CharacterPos[0]
+MouseY2 = MouseY2 - CharacterPos[1]
 
-Rotation = (math.atan2(MouseX2, MouseY2) * 57.2958) + 180  #rotation equation
+# Rotation equation
+Rotation = (math.atan2(MouseX2, MouseY2) * 57.2958) + 180
 
-Character2 = pygame.transform.rotate(Character, Rotation)     # The code that does the rotation
+# The code that does the rotation
+Character2 = pygame.transform.rotate(Character, Rotation)
 
-MousePress,lele,lele = pygame.mouse.get_pressed()       #checks if mouse button 1 is pressed, ignore the "lele"
+# Checks if mouse button 1 is pressed, ignore the "lele"
+MousePress,lele,lele = pygame.mouse.get_pressed()
 
-if MousePress ==1:           #If Mouse button 1 is pressed
+# If Mouse button 1 is pressed
+if MousePress ==1:
     BallSpawn = True
-    BallPos = (Width/2, Height/2)    #Gets the initial position of the ball
-    BallSpeed = (0,0)             #sets the speed of the ball
 
-    Vector = sub((MouseX, MouseY), (BallPos))          #Creates a vector
-    VectorTotal = ((math.sqrt(Vector[0]**2)) + (math.sqrt(Vector[1]**2))) / 20          #gets the sum of the vector and divides by 20
-    Vector = (Vector[0] / VectorTotal),(Vector[1] / VectorTotal)              #dividves the vector by this new vector
-    BallSpeed = (int(Vector[0]),(int(Vector[1])))               #generates the ballspeed as a result
+    # Gets the initial position of the ball
+    BallPos = (Width/2, Height/2)
+
+    # Sets the speed of the ball
+    BallSpeed = (0,0)
+
+    # Creates a vector
+    Vector = sub((MouseX, MouseY), (BallPos))
+
+    # Gets the sum of the vector and divides by 20
+    VectorTotal = ((math.sqrt(Vector[0]**2)) + (math.sqrt(Vector[1]**2))) / 20
+
+    # Dividves the vector by this new vector
+    Vector = (Vector[0] / VectorTotal),(Vector[1] / VectorTotal)
+
+    # Generates the ballspeed as a result
+    BallSpeed = (int(Vector[0]),(int(Vector[1])))
 
 if BallSpawn is True:
-
-    BallPos = (BallPos[0] + BallSpeed[0]),(BallPos[1] + BallSpeed[1])    #Updates the position of the ball
+    # Updates the position of the ball
+    BallPos = (BallPos[0] + BallSpeed[0]),(BallPos[1] + BallSpeed[1])
 
 
