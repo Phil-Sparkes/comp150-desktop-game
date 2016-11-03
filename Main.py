@@ -66,15 +66,14 @@ class Roomba:
         self.pos_y += self.speed_y
 
         # Turn around
-        if self.speed_x == 2:
-            if self.pos_x < self.start_x or self.pos_x > self.dest_x:
-                self.speed_x = -self.speed_x
-                self.rotate += 180
 
-        elif self.speed_y == 2:
-            if self.pos_y < self.start_y or  self.pos_y > self.dest_y:
-                self.speed_y = -self.speed_y
-                self.rotate += 180
+        if self.pos_x < self.start_x or self.pos_x > self.dest_x:
+            self.speed_x = -self.speed_x
+            self.rotate += 180
+
+        if self.pos_y < self.start_y or  self.pos_y > self.dest_y:
+            self.speed_y = -self.speed_y
+            self.rotate += 180
 
     def draw(self):
         # Draws the roomba
