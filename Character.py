@@ -1,6 +1,8 @@
 import pygame
 import math
 
+
+
 # Gets the position of the character
 CharacterPos = (Width/2, Height/2)
 
@@ -27,26 +29,32 @@ Character2 = pygame.transform.rotate(Character, Rotation)
 MousePress,lele,lele = pygame.mouse.get_pressed()
 
 # If Mouse button 1 is pressed
-if MousePress ==1:
-    BallSpawn = True
+if not pygame.time.get_ticks() - 500 < temptime:
+    if MousePress ==1:
+        if paintballammocounter > 0:
+            paintballammocounter -= 1
+            BallSpawn = True
 
-    # Gets the initial position of the ball
-    BallPos = (Width/2, Height/2)
+            # Gets the initial position of the ball
+            BallPos = (Width/2, Height/2)
 
-    # Sets the speed of the ball
-    BallSpeed = (0,0)
+            # Sets the speed of the ball
+            BallSpeed = (0,0)
 
-    # Creates a vector
-    Vector = sub((MouseX, MouseY), (BallPos))
+            # Creates a vector
+            Vector = sub((MouseX, MouseY), (BallPos))
 
-    # Gets the sum of the vector and divides by 20
-    VectorTotal = ((math.sqrt(Vector[0]**2)) + (math.sqrt(Vector[1]**2))) / 20
+            # Gets the sum of the vector and divides by 20
+            VectorTotal = ((math.sqrt(Vector[0]**2)) + (math.sqrt(Vector[1]**2))) / 20
 
-    # Dividves the vector by this new vector
-    Vector = (Vector[0] / VectorTotal),(Vector[1] / VectorTotal)
+            # Dividves the vector by this new vector
+            Vector = (Vector[0] / VectorTotal),(Vector[1] / VectorTotal)
 
-    # Generates the ballspeed as a result
-    BallSpeed = (int(Vector[0]),(int(Vector[1])))
+            # Generates the ballspeed as a result
+            BallSpeed = (int(Vector[0]),(int(Vector[1])))
+
+            temptime = pygame.time.get_ticks()
+
 
 if BallSpawn is True:
     # Updates the position of the ball

@@ -11,6 +11,10 @@ Running = True
 Width = 1280
 Height = 720
 
+CharacterPos = (Width/2, Height/2)
+
+temptime = 0
+
 # For the character movement and map tracking
 Y = 0
 X = 0
@@ -24,16 +28,46 @@ BallSpawn = False
 White = (255,255,255)
 Red = (255,100,100)
 
+# Item Counters
+paintballammocounter = 3
+paintgrenadecounter = 0
+rubbishcounter = 0
+
 # Importing the art
 Background = pygame.image.load("maptest.png")
-Character = pygame.image.load("character2.png")     #
+Character = pygame.image.load("character2.png")
 RoombaModel = pygame.image.load("Art-assets/Roomba (passive).png")
+Rubbishart = pygame.image.load("Art-assets/Roomba (passive).png")
+Paintballammo = pygame.image.load("Art-assets/Roomba (hostile).png")
+Paintgrenade = pygame.image.load("character2.png")
 
 # Draws the screen
 screen = pygame.display.set_mode((Width, Height))
 
 # Adds the clock
 Clock = pygame.time.Clock()
+
+
+class Items:
+    """Class for the items"""
+    def __init__(self, Xpos, Ypos, itemkind):
+        self.pos_x = Xpos
+        self.pos_y = Ypos
+        self.item = itemkind
+
+    def draw(self):
+        if self.item == 1:
+            screen.blit(Rubbishart, (X + self.pos_x, Y + self.pos_y))
+        if self.item == 0:
+            screen.blit(Paintballammo, (X + self.pos_x, Y + self.pos_y))
+        if self.item == 2:
+            screen.blit(Paintgrenade, (X + self.pos_x, Y + self.pos_y))
+
+    def update(self):
+        if CharacterPos[0]-64<X + self.pos_x<CharacterPos[0]+64:
+            if CharacterPos[1]-64<Y + self.pos_y<CharacterPos[1]+64:
+                listItems.remove(self)
+                return self.item
 
 
 class Roomba:
@@ -59,7 +93,6 @@ class Roomba:
             self.speed_y = 2
 
 
-
     def update(self):
 
         self.pos_x += self.speed_x
@@ -83,6 +116,21 @@ class Roomba:
 # List of Roomba's
 roombas = []
 
+# List of Items
+listItems = []
+
+# Create items
+Paintballammo1 = Items(400, 400, 0)
+listItems.append(Paintballammo1)
+
+Paintballammo2 = Items(0, 400, 0)
+listItems.append(Paintballammo2)
+
+Rubbish1 = Items(0, 0, 1)
+listItems.append(Rubbish1)
+
+Paintgrenade1 = Items(300, 300, 2)
+listItems.append(Paintgrenade1)
 
 # Create roombas
 Roomba1 = Roomba(0 ,0, 200, 90)
@@ -90,6 +138,18 @@ roombas.append(Roomba1)
 
 Roomba2 = Roomba(600, -400, 500, 0)
 roombas.append(Roomba2)
+
+Roomba3 = Roomba(200, -200, 300, 0)
+roombas.append(Roomba3)
+
+Roomba4 = Roomba(500, 800, 1000, 90)
+roombas.append(Roomba4)
+
+Roomba5 = Roomba(400, -400, 400, 0)
+roombas.append(Roomba5)
+
+Roomba6 = Roomba(500, -400, 300, 0)
+roombas.append(Roomba6)
 
 # MainLoop
 while Running:
@@ -122,10 +182,21 @@ while Running:
     screen.blit(Background, (X, Y))
     screen.blit(Character2, (Width/2 - 32, Height/2 - 32))
 
-    # Draws the Roomba's
+    # Draws the Roombas
     for roomba in roombas:
         roomba.update()
         roomba.draw()
+
+    # Draws the Items and keeps track of how many the player has
+    for item in listItems:
+        item.draw()
+        itemcounter = item.update()
+        if itemcounter == 0:
+            paintballammocounter += 3
+        if itemcounter == 1:
+            rubbishcounter += 1
+        if itemcounter == 2:
+            paintgrenadecounter += 1
 
     # Draws a paintball if conditions are met
     if BallSpawn is True:
