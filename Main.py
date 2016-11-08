@@ -27,18 +27,23 @@ BallSpawn = False
 # Defining colours for later use
 White = (255,255,255)
 Red = (255,100,100)
+Black =(0,0,0)
 
 # Item Counters
-paintballammocounter = 3
+paintballammocounter = 9
 paintgrenadecounter = 0
 rubbishcounter = 0
 
+Textfont = pygame.font.SysFont("impact", 60)
+Fontimg = Textfont.render(str(paintballammocounter), 1, Red)
+
+
 # Importing the art
 Background = pygame.image.load("maptest.png")
-Character = pygame.image.load("character2.png")
-RoombaModel = pygame.image.load("Art-assets/Roomba (passive).png")
-Rubbishart = pygame.image.load("Art-assets/Roomba (passive).png")
-Paintballammo = pygame.image.load("Art-assets/Roomba (hostile).png")
+Character = pygame.image.load("Art-assets/Character.png")
+RoombaModel = pygame.image.load("Art-assets/Roomba (passive) hitbox reduced.png")
+Rubbishart = pygame.image.load("Art-assets/Roomba (passive) hitbox reduced.png")
+Paintballammo = pygame.image.load("Art-assets/Roomba (hostile) hitbox reduced.png")
 Paintgrenade = pygame.image.load("character2.png")
 
 # Draws the screen
@@ -180,6 +185,11 @@ while Running:
     # Updates the positions on the screen
     screen.fill(White)
     screen.blit(Background, (X, Y))
+    rect = (0, 650, 70, 70)
+    pygame.draw.rect(screen, Black, rect)
+    Fontimg = Textfont.render(str(paintballammocounter), 1, Red)
+    screen.blit(Fontimg, (10, 650))
+
     screen.blit(Character2, (Width/2 - 32, Height/2 - 32))
 
     # Draws the Roombas
