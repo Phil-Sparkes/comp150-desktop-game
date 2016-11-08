@@ -1,5 +1,6 @@
 import pygame
 import sys
+import random
 from pygame.locals import *
 
 pygame.init()
@@ -21,30 +22,38 @@ X = 0
 
 CharacterSpeed = 5
 
+# Defining colours for later use
+White = (255, 255, 255)
+Red = (255, 0, 0)
+Green = (0, 255, 0)
+Blue = (0, 0, 255)
+Yellow = (255, 255, 0)
+Black = (0, 0, 0)
+
+# Rectangles
+rect = (0, 650, 70, 70)
+rect2 = (80, 650, 70, 70)
+rect3 = (160, 650, 70, 70)
+
 # For the paintball spawn
 BallSpawn = False
-
-# Defining colours for later use
-White = (255,255,255)
-Red = (255,100,100)
-Black =(0,0,0)
+BallColour = Red
 
 # Item Counters
 paintballammocounter = 9
 paintgrenadecounter = 0
 rubbishcounter = 0
 
+# Font
 Textfont = pygame.font.SysFont("impact", 60)
-Fontimg = Textfont.render(str(paintballammocounter), 1, Red)
-
 
 # Importing the art
 Background = pygame.image.load("maptest.png")
 Character = pygame.image.load("Art-assets/Character.png")
 RoombaModel = pygame.image.load("Art-assets/Roomba (passive) hitbox reduced.png")
-Rubbishart = pygame.image.load("Art-assets/Roomba (passive) hitbox reduced.png")
-Paintballammo = pygame.image.load("Art-assets/Roomba (hostile) hitbox reduced.png")
-Paintgrenade = pygame.image.load("character2.png")
+Rubbishart = pygame.image.load("Art-assets/Rubbish.png")
+Paintballammo = pygame.image.load("Art-assets/Ammo.png")
+Paintgrenade = pygame.image.load("Art-assets/Grenade.png")
 
 # Draws the screen
 screen = pygame.display.set_mode((Width, Height))
@@ -52,12 +61,11 @@ screen = pygame.display.set_mode((Width, Height))
 # Adds the clock
 Clock = pygame.time.Clock()
 
-
 class Items:
     """Class for the items"""
-    def __init__(self, Xpos, Ypos, itemkind):
-        self.pos_x = Xpos
-        self.pos_y = Ypos
+    def __init__(self, xpos, ypos, itemkind):
+        self.pos_x = xpos
+        self.pos_y = ypos
         self.item = itemkind
 
     def draw(self):
@@ -69,25 +77,26 @@ class Items:
             screen.blit(Paintgrenade, (X + self.pos_x, Y + self.pos_y))
 
     def update(self):
-        if CharacterPos[0]-64<X + self.pos_x<CharacterPos[0]+64:
-            if CharacterPos[1]-64<Y + self.pos_y<CharacterPos[1]+64:
+        # Player collision with item
+        if CharacterPos[0] - 64 < X + self.pos_x < CharacterPos[0] + 64:
+            if CharacterPos[1] - 64 < Y + self.pos_y < CharacterPos[1] + 64:
                 listItems.remove(self)
                 return self.item
 
 
 class Roomba:
-    def __init__(self, Xpos, Ypos, Distance, Rotation):
+    def __init__(self, x_pos, y_pos, distance, rotation):
         # Choose a position
-        self.pos_x = Xpos
-        self.pos_y = Ypos
+        self.pos_x = x_pos
+        self.pos_y = y_pos
 
-        self.start_x = Xpos
-        self.start_y = Ypos
+        self.start_x = x_pos
+        self.start_y = y_pos
 
-        self.dest_x = Xpos + Distance
-        self.dest_y = Ypos + Distance
+        self.dest_x = x_pos + distance
+        self.dest_y = y_pos + distance
 
-        self.rotate = Rotation
+        self.rotate = rotation
 
         # Choose a speed
         if self.rotate == 90 or self.rotate == 270:
@@ -96,7 +105,6 @@ class Roomba:
         else:
             self.speed_x = 0
             self.speed_y = 2
-
 
     def update(self):
 
@@ -115,8 +123,8 @@ class Roomba:
 
     def draw(self):
         # Draws the roomba
-        RoombaRotate = pygame.transform.rotate(RoombaModel, self.rotate)
-        screen.blit(RoombaRotate, (X + self.pos_x, Y + self.pos_y))
+        roomba_rotate = pygame.transform.rotate(RoombaModel, self.rotate)
+        screen.blit(roomba_rotate, (X + self.pos_x, Y + self.pos_y))
 
 # List of Roomba's
 roombas = []
@@ -138,10 +146,10 @@ Paintgrenade1 = Items(300, 300, 2)
 listItems.append(Paintgrenade1)
 
 # Create roombas
-Roomba1 = Roomba(0 ,0, 200, 90)
+Roomba1 = Roomba(0, 0, 200, 90)
 roombas.append(Roomba1)
 
-Roomba2 = Roomba(600, -400, 500, 0)
+Roomba2 = Roomba(600, -400, 500, 90)
 roombas.append(Roomba2)
 
 Roomba3 = Roomba(200, -200, 300, 0)
@@ -172,6 +180,7 @@ while Running:
     if pressed[pygame.K_d]:
         X -= CharacterSpeed
 
+    # Quit
     for event in pygame.event.get():
             if event.type == QUIT:
                 Running = False
@@ -185,11 +194,19 @@ while Running:
     # Updates the positions on the screen
     screen.fill(White)
     screen.blit(Background, (X, Y))
-    rect = (0, 650, 70, 70)
-    pygame.draw.rect(screen, Black, rect)
-    Fontimg = Textfont.render(str(paintballammocounter), 1, Red)
-    screen.blit(Fontimg, (10, 650))
 
+    # Updates the text
+    Fontimg = Textfont.render(str(paintballammocounter), 1, Yellow)
+    Fontimg2 = Textfont.render(str(rubbishcounter), 1, Yellow)
+    Fontimg3 = Textfont.render(str(paintgrenadecounter), 1, Yellow)
+
+    # centers the text
+    if paintballammocounter > 9:
+        fontcenter = 10
+    else:
+        fontcenter = 20
+
+    # Draw the characters
     screen.blit(Character2, (Width/2 - 32, Height/2 - 32))
 
     # Draws the Roombas
@@ -210,7 +227,22 @@ while Running:
 
     # Draws a paintball if conditions are met
     if BallSpawn is True:
-        pygame.draw.circle(screen, Red, BallPos, 5)
+        pygame.draw.circle(screen, BallColour, BallPos, 5)
+
+    # Draws the HUD
+    pygame.draw.rect(screen, Black, rect)
+    pygame.draw.rect(screen, Black, rect2)
+    pygame.draw.rect(screen, Black, rect3)
+
+    # Draw the text
+    screen.blit(Fontimg, (fontcenter, 650))
+    screen.blit(Fontimg2, (100, 650))
+    screen.blit(Fontimg3, (180, 650))
+
+    # Draw the icons
+    screen.blit(Paintballammo, (3, 580))
+    screen.blit(Rubbishart, (83, 580))
+    screen.blit(Paintgrenade, (163, 580))
 
     # Updates the display
     pygame.display.flip()
