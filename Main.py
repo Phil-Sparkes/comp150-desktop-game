@@ -126,6 +126,27 @@ class Roomba:
         roomba_rotate = pygame.transform.rotate(RoombaModel, self.rotate)
         screen.blit(roomba_rotate, (X + self.pos_x, Y + self.pos_y))
 
+
+def wall_check(direction):
+    """Checks if wall in direction player is going, False if wall, True if not"""
+    if direction == "up":
+        colour = screen.get_at((Width/2, Height/2 - 30))
+        if colour == (0, 0, 0, 255):
+            return False
+    if direction == "down":
+        colour = screen.get_at((Width/2, Height/2 + 30))
+        if colour == (0, 0, 0, 255):
+            return False
+    if direction == "left":
+        colour = screen.get_at((Width/2 - 30, Height/2))
+        if colour == (0, 0, 0, 255):
+            return False
+    if direction == "right":
+        colour = screen.get_at((Width/2 + 30, Height/2))
+        if colour == (0, 0, 0, 255):
+            return False
+    return True
+
 # List of Roomba's
 roombas = []
 
@@ -171,14 +192,15 @@ while Running:
     pressed = pygame.key.get_pressed()
 
     # Character movement
-    if pressed[pygame.K_w]:
+    if pressed[pygame.K_w] and wall_check("up"):
         Y += CharacterSpeed
-    if pressed[pygame.K_s]:
+    if pressed[pygame.K_s] and wall_check("down"):
         Y -= CharacterSpeed
-    if pressed[pygame.K_a]:
+    if pressed[pygame.K_a] and wall_check("left"):
         X += CharacterSpeed
-    if pressed[pygame.K_d]:
+    if pressed[pygame.K_d] and wall_check("right"):
         X -= CharacterSpeed
+
 
     # Quit
     for event in pygame.event.get():
