@@ -1,6 +1,7 @@
 import pygame
 import sys
 import random
+import math
 from pygame.locals import *
 
 pygame.init()
@@ -14,6 +15,7 @@ Height = 720
 
 CharacterPos = (Width/2, Height/2)
 
+# Used for delay between shooting paintballs
 temptime = 0
 
 # For the character movement and map tracking
@@ -35,15 +37,6 @@ rect = (0, 650, 70, 70)
 rect2 = (80, 650, 70, 70)
 rect3 = (160, 650, 70, 70)
 
-# For the paintball spawn
-BallSpawn = False
-BallColour = Red
-
-# Item Counters
-paintballammocounter = 9
-paintgrenadecounter = 0
-rubbishcounter = 0
-
 # Font
 Textfont = pygame.font.SysFont("impact", 60)
 
@@ -60,6 +53,129 @@ screen = pygame.display.set_mode((Width, Height))
 
 # Adds the clock
 Clock = pygame.time.Clock()
+
+class Character_class:
+    def __init__(self):
+        self.pos_x = Width / 2
+        self.pos_y = Height / 2
+
+        self.rotation = 0
+
+        self.paint_ball_ammo = 9
+        self.paint_grenade = 0
+        self.rubbish = 0
+
+        self.ballpos = (self.pos_x, self.pos_y)
+        self.ball_spawn = False
+        self.ball_speed = (0,0)
+        self.ball_colour = Red
+
+    def rotate(self):
+
+        MouseX, MouseY = pygame.mouse.get_pos()
+        MouseX2 = MouseX - self.pos_x
+        MouseY2 = MouseY - self.pos_y
+        self.rotation = (math.atan2(MouseX2, MouseY2) * 57.2958) + 180
+
+    def shoot_paint_ball(self, temptime):
+        MousePress = pygame.mouse.get_pressed()[0]
+        if not pygame.time.get_ticks() - 500 < temptime:
+
+            if MousePress == 1:
+
+                if self.paint_ball_ammo > 0:
+                    self.paint_ball_ammo -= 1
+
+                    self.ball_spawn = True
+                    self.ball_colour = random.choice([Red, Green, Blue, Yellow])
+                    # Gets the initial position of the ball
+                    self.ballpos = (self.pos_x, self.pos_y)
+
+                    # Creates a vector
+                    MouseX, MouseY = pygame.mouse.get_pos()
+                    Vector = sub((MouseX, MouseY),self.ballpos)
+
+                    # Gets the sum of the vector and divides by 20
+                    VectorTotal = ((math.sqrt(Vector[0] ** 2)) + (math.sqrt(Vector[1] ** 2))) / 20
+
+                    # Divides the vector by this new vector
+                    Vector = (Vector[0] / VectorTotal), (Vector[1] / VectorTotal)
+
+                    # Generates the ball speed as a result
+                    self.ball_speed = (int(Vector[0]), (int(Vector[1])))
+                    print self.ball_speed
+
+                    temptime = pygame.time.get_ticks()
+
+        return temptime
+
+    def update(self):
+
+        if self.ball_spawn is True:
+            # Updates the position of the ball
+            self.ballpos = (self.ballpos[0] + self.ball_speed[0]), (self.ballpos[1] + self.ball_speed[1])
+
+        # Draws the character
+        CharacterRot = pygame.transform.rotate(Character, self.rotation)
+        screen.blit(CharacterRot, (Width / 2 - 32, Height / 2 - 32))
+
+
+        # Draws the Items and keeps track of how many the player has
+        for item in listItems:
+            item.draw()
+            itemcounter = item.update()
+            if itemcounter == 0:
+                self.paint_ball_ammo += 3
+            if itemcounter == 1:
+                self.rubbish += 1
+            if itemcounter == 2:
+                self.paint_grenade += 1
+
+        # Draws a paintball if conditions are met
+        if self.ball_spawn is True:
+            pygame.draw.circle(screen, self.ball_colour, self.ballpos, 5)
+
+        # Draws the HUD
+        pygame.draw.rect(screen, Black, rect)
+        pygame.draw.rect(screen, Black, rect2)
+        pygame.draw.rect(screen, Black, rect3)
+
+        # Updates the text
+        Fontimg = Textfont.render(str(self.paint_ball_ammo), 1, Yellow)
+        Fontimg2 = Textfont.render(str(self.rubbish), 1, Yellow)
+        Fontimg3 = Textfont.render(str(self.paint_grenade), 1, Yellow)
+
+        # centers the text
+        if self.paint_ball_ammo > 9:
+            fontcenter = 10
+        else:
+            fontcenter = 20
+
+        # Draw the text
+        screen.blit(Fontimg, (fontcenter, 650))
+        screen.blit(Fontimg2, (100, 650))
+        screen.blit(Fontimg3, (180, 650))
+
+        # Draw the icons
+        screen.blit(Paintballammo, (3, 580))
+        screen.blit(Rubbishart, (83, 580))
+        screen.blit(Paintgrenade, (163, 580))
+
+    def player_movement(self, X, Y):
+        pressed = pygame.key.get_pressed()
+
+        # Character movement
+        if pressed[pygame.K_w] and wall_check("up"):
+            Y += CharacterSpeed
+        if pressed[pygame.K_s] and wall_check("down"):
+            Y -= CharacterSpeed
+        if pressed[pygame.K_a] and wall_check("left"):
+            X += CharacterSpeed
+        if pressed[pygame.K_d] and wall_check("right"):
+            X -= CharacterSpeed
+
+        return X, Y
+
 
 class Items:
     """Class for the items"""
@@ -147,11 +263,17 @@ def wall_check(direction):
             return False
     return True
 
+# Function for finding the vector
+def sub(u, v):
+    return [u[i]-v[i] for i in range(len(u))]
+
 # List of Roomba's
 roombas = []
 
 # List of Items
 listItems = []
+
+PlayCharacter = Character_class()
 
 # Create items
 Paintballammo1 = Items(400, 400, 0)
@@ -189,19 +311,7 @@ roombas.append(Roomba6)
 while Running:
     Clock.tick(60)
 
-    pressed = pygame.key.get_pressed()
-
-    # Character movement
-    if pressed[pygame.K_w] and wall_check("up"):
-        Y += CharacterSpeed
-    if pressed[pygame.K_s] and wall_check("down"):
-        Y -= CharacterSpeed
-    if pressed[pygame.K_a] and wall_check("left"):
-        X += CharacterSpeed
-    if pressed[pygame.K_d] and wall_check("right"):
-        X -= CharacterSpeed
-
-
+    X, Y = PlayCharacter.player_movement(X, Y)
     # Quit
     for event in pygame.event.get():
             if event.type == QUIT:
@@ -209,62 +319,22 @@ while Running:
             if event.type == KEYDOWN and event.key == K_ESCAPE:
                 Running = False
 
-
-    # Executes the Character python file
-    execfile("Character.py")
+    # Function for shooting the paintballs
+    temptime = PlayCharacter.shoot_paint_ball(temptime)
 
     # Updates the positions on the screen
     screen.fill(White)
     screen.blit(Background, (X, Y))
-
-    # Updates the text
-    Fontimg = Textfont.render(str(paintballammocounter), 1, Yellow)
-    Fontimg2 = Textfont.render(str(rubbishcounter), 1, Yellow)
-    Fontimg3 = Textfont.render(str(paintgrenadecounter), 1, Yellow)
-
-    # centers the text
-    if paintballammocounter > 9:
-        fontcenter = 10
-    else:
-        fontcenter = 20
-
-    # Draw the characters
-    screen.blit(Character2, (Width/2 - 32, Height/2 - 32))
 
     # Draws the Roombas
     for roomba in roombas:
         roomba.update()
         roomba.draw()
 
-    # Draws the Items and keeps track of how many the player has
-    for item in listItems:
-        item.draw()
-        itemcounter = item.update()
-        if itemcounter == 0:
-            paintballammocounter += 3
-        if itemcounter == 1:
-            rubbishcounter += 1
-        if itemcounter == 2:
-            paintgrenadecounter += 1
-
-    # Draws a paintball if conditions are met
-    if BallSpawn is True:
-        pygame.draw.circle(screen, BallColour, BallPos, 5)
-
-    # Draws the HUD
-    pygame.draw.rect(screen, Black, rect)
-    pygame.draw.rect(screen, Black, rect2)
-    pygame.draw.rect(screen, Black, rect3)
-
-    # Draw the text
-    screen.blit(Fontimg, (fontcenter, 650))
-    screen.blit(Fontimg2, (100, 650))
-    screen.blit(Fontimg3, (180, 650))
-
-    # Draw the icons
-    screen.blit(Paintballammo, (3, 580))
-    screen.blit(Rubbishart, (83, 580))
-    screen.blit(Paintgrenade, (163, 580))
+    # Rotates the Charcter
+    PlayCharacter.rotate()
+    # Updates the Character and the HUD
+    PlayCharacter.update()
 
     # Updates the display
     pygame.display.flip()
