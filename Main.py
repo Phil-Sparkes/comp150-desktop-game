@@ -244,20 +244,21 @@ class Roomba:
 
 def wall_check(direction):
     """Checks if wall in direction player is going, False if wall, True if not"""
+    check_distance = 40
     if direction == "up":
-        colour = screen.get_at((Width/2, Height/2 - 30))
+        colour = screen.get_at((Width/2, Height/2 - check_distance))
         if colour == (0, 0, 0, 255):
             return False
     if direction == "down":
-        colour = screen.get_at((Width/2, Height/2 + 30))
+        colour = screen.get_at((Width/2, Height/2 + check_distance))
         if colour == (0, 0, 0, 255):
             return False
     if direction == "left":
-        colour = screen.get_at((Width/2 - 30, Height/2))
+        colour = screen.get_at((Width/2 - check_distance, Height/2))
         if colour == (0, 0, 0, 255):
             return False
     if direction == "right":
-        colour = screen.get_at((Width/2 + 30, Height/2))
+        colour = screen.get_at((Width/2 + check_distance, Height/2))
         if colour == (0, 0, 0, 255):
             return False
     return True
