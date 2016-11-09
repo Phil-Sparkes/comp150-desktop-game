@@ -60,35 +60,40 @@ class CharacterClass:
         self.pos_x = Width / 2
         self.pos_y = Height / 2
 
+        # Player rotation
         self.rotation = 0
 
+        # Item counters
         self.paint_ball_ammo = 9
         self.paint_grenade = 0
         self.rubbish = 0
 
+        # Paintball properties
         self.ball_position = (self.pos_x, self.pos_y)
         self.ball_spawn = False
         self.ball_speed = (0, 0)
         self.ball_colour = Red
 
     def rotate(self):
-
+        """Rotates the player to follow the mouse"""
         mouse_x, mouse_y = pygame.mouse.get_pos()
         mouse_x2 = mouse_x - self.pos_x
         mouse_y2 = mouse_y - self.pos_y
         self.rotation = (math.atan2(mouse_x2, mouse_y2) * 57.2958) + 180
 
     def shoot_paint_ball(self, TempTime):
+        """Shoots the paintball gun"""
         mouse_press = pygame.mouse.get_pressed()[0]
         if not pygame.time.get_ticks() - 500 < TempTime:
-
             if mouse_press == 1:
-
                 if self.paint_ball_ammo > 0:
+                    # Decreases the ammo count
                     self.paint_ball_ammo -= 1
-
                     self.ball_spawn = True
+
+                    # Sets the colour of the ball
                     self.ball_colour = random.choice([Red, Green, Blue, Yellow])
+
                     # Gets the initial position of the ball
                     self.ball_position = (self.pos_x, self.pos_y)
 
@@ -110,7 +115,6 @@ class CharacterClass:
         return TempTime
 
     def update(self):
-
         if self.ball_spawn is True:
             # Updates the position of the ball
             self.ball_position = (self.ball_position[0] + self.ball_speed[0]), (self.ball_position[1] + self.ball_speed[1])
@@ -161,9 +165,11 @@ class CharacterClass:
         screen.blit(PaintGrenade, (163, 580))
 
     def player_movement(self, x, y):
+        """Player movement, returns an X and Y value"""
+        # Checks what keys are being pressed
         pressed = pygame.key.get_pressed()
 
-        # Character movement
+        # Direction character is moving in
         if pressed[pygame.K_w] and wall_check("up"):
             y += CharacterSpeed
         if pressed[pygame.K_s] and wall_check("down"):
@@ -184,6 +190,7 @@ class Items:
         self.item = itemkind
 
     def draw(self):
+        """draws the items on the screen"""
         if self.item == 1:
             screen.blit(RubbishArt, (X + self.pos_x, Y + self.pos_y))
         if self.item == 0:
@@ -192,16 +199,21 @@ class Items:
             screen.blit(PaintGrenade, (X + self.pos_x, Y + self.pos_y))
 
     def update(self):
-        # Player collision with item
+        """detects collision with the player"""
         if CharacterPos[0] - 64 < X + self.pos_x < CharacterPos[0] + 64:
             if CharacterPos[1] - 64 < Y + self.pos_y < CharacterPos[1] + 64:
+                # Removes the item from the list
                 listItems.remove(self)
+                # Returns a value corresponding to the item picked up
                 return self.item
 
 
 class Roomba:
     def __init__(self, x_pos, y_pos, distance, rotation):
-        # Choose a position
+        """Roomba class takes:
+        x and y coordinates for starting position
+        distance for how far it travels
+        rotation for which way it goes"""
         self.pos_x = x_pos
         self.pos_y = y_pos
 
@@ -213,7 +225,7 @@ class Roomba:
 
         self.rotate = rotation
 
-        # Choose a speed
+        # Which direction the roomba is going in
         if self.rotate == 90 or self.rotate == 270:
             self.speed_x = 2
             self.speed_y = 0
@@ -222,6 +234,8 @@ class Roomba:
             self.speed_y = 2
 
     def update(self):
+
+        # Changes the position depending on the speed
 
         self.pos_x += self.speed_x
         self.pos_y += self.speed_y
@@ -237,9 +251,15 @@ class Roomba:
             self.rotate += 180
 
     def draw(self):
-        # Draws the roomba
+        """Draws the Roomba's"""
         roomba_rotate = pygame.transform.rotate(RoombaModel, self.rotate)
         screen.blit(roomba_rotate, (X + self.pos_x, Y + self.pos_y))
+
+    def collision(self):
+        """Checks for collision with the player"""
+        if CharacterPos[0] - 50 < X + self.pos_x + 47 < CharacterPos[0] + 50:
+            if CharacterPos[1] - 50 < Y + self.pos_y + 47 < CharacterPos[1] + 50:
+                print "game over"
 
 
 def wall_check(direction):
@@ -274,6 +294,7 @@ roombas = []
 # List of Items
 listItems = []
 
+# Create character
 PlayCharacter = CharacterClass()
 
 # Create items
@@ -312,7 +333,9 @@ roombas.append(Roomba6)
 while Running:
     Clock.tick(60)
 
+    # Updates character position
     X, Y = PlayCharacter.player_movement(X, Y)
+
     # Quit
     for event in pygame.event.get():
             if event.type == QUIT:
@@ -331,6 +354,7 @@ while Running:
     for roomba in roombas:
         roomba.update()
         roomba.draw()
+        roomba.collision()
 
     # Rotates the Charcter
     PlayCharacter.rotate()
