@@ -31,6 +31,7 @@ Green = (0, 255, 0)
 Blue = (0, 0, 255)
 Yellow = (255, 255, 0)
 Black = (0, 0, 0)
+Nothing = (0,0,0,0)
 
 # Rectangles
 rect = (0, 650, 70, 70)
@@ -261,6 +262,34 @@ class Roomba:
             if CharacterPos[1] - 50 < Y + self.pos_y + 47 < CharacterPos[1] + 50:
                 print "game over"
 
+    def detect(self):
+        """Checks if roomba detects player"""
+        if self.speed_y == 2:
+            #area = (X + self.pos_x - 107, Y + self.pos_y + 30, 296, 390)
+            if X + self.pos_x - 107 < CharacterPos[0] < X + self.pos_x + 283:
+                if Y + self.pos_y + 30 < CharacterPos[1] < Y + self.pos_y + 420:
+                    print "detected down"
+                    return True
+        if self.speed_y == -2:
+            #area = (X + self.pos_x - 107, Y + self.pos_y + 90, 296, -390)
+            if X + self.pos_x - 107 < CharacterPos[0] < X + self.pos_x + 283:
+                if Y + self.pos_y - 300 < CharacterPos[1] < Y + self.pos_y + 90:
+                    print "detected up"
+                    return True
+        if self.speed_x == 2:
+            #area = (X + self.pos_x + 30, Y + self.pos_y - 107, 390, 296)
+            if X + self.pos_x + 30 < CharacterPos[0] < X + self.pos_x + 420:
+                if Y + self.pos_y - 107 < CharacterPos[1] < Y + self.pos_y + 189:
+                    print "detected right"
+                    return True
+        if self.speed_x == -2:
+            #area = (X + self.pos_x + 90, Y + self.pos_y - 107, -390, 296)
+            if X + self.pos_x - 300 < CharacterPos[0] < X + self.pos_x + 90:
+                if Y + self.pos_y - 107 < CharacterPos[1] < Y + self.pos_y + 189:
+                    print "detected left"
+                    return True
+        #pygame.draw.rect(screen, Red, area)
+
 
 def wall_check(direction):
     """Checks if wall in direction player is going, False if wall, True if not"""
@@ -323,12 +352,6 @@ roombas.append(Roomba3)
 Roomba4 = Roomba(500, 800, 1000, 90)
 roombas.append(Roomba4)
 
-Roomba5 = Roomba(400, -400, 400, 0)
-roombas.append(Roomba5)
-
-Roomba6 = Roomba(500, -400, 300, 0)
-roombas.append(Roomba6)
-
 # MainLoop
 while Running:
     Clock.tick(60)
@@ -355,6 +378,7 @@ while Running:
         roomba.update()
         roomba.draw()
         roomba.collision()
+        roomba.detect()
 
     # Rotates the Charcter
     PlayCharacter.rotate()
