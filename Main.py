@@ -31,7 +31,6 @@ Green = (0, 255, 0)
 Blue = (0, 0, 255)
 Yellow = (255, 255, 0)
 Black = (0, 0, 0)
-Nothing = (0,0,0,0)
 
 # Rectangles
 rect = (0, 650, 70, 70)
@@ -45,6 +44,7 @@ TextFont = pygame.font.SysFont("impact", 60)
 Background = pygame.image.load("maptest.png")
 CharacterModel = pygame.image.load("Art-assets/Character.png")
 RoombaModel = pygame.image.load("Art-assets/Roomba (passive) hitbox reduced.png")
+RoombaModelHostile = pygame.image.load("Art-assets/Roomba (hostile) hitbox reduced.png")
 RubbishArt = pygame.image.load("Art-assets/Rubbish.png")
 PaintballAmmo = pygame.image.load("Art-assets/Ammo.png")
 PaintGrenade = pygame.image.load("Art-assets/Grenade.png")
@@ -252,8 +252,11 @@ class Roomba:
             self.rotate += 180
 
     def draw(self):
-        """Draws the Roomba's"""
-        roomba_rotate = pygame.transform.rotate(RoombaModel, self.rotate)
+        """Draws the Roomba's, Will draw red roomba if player has been detected"""
+        if roomba.detect():
+            roomba_rotate = pygame.transform.rotate(RoombaModelHostile, self.rotate)
+        else:
+            roomba_rotate = pygame.transform.rotate(RoombaModel, self.rotate)
         screen.blit(roomba_rotate, (X + self.pos_x, Y + self.pos_y))
 
     def collision(self):
@@ -263,32 +266,44 @@ class Roomba:
                 print "game over"
 
     def detect(self):
-        """Checks if roomba detects player"""
+        """Checks if roomba detects player or items"""
         if self.speed_y == 2:
-            #area = (X + self.pos_x - 107, Y + self.pos_y + 30, 296, 390)
             if X + self.pos_x - 107 < CharacterPos[0] < X + self.pos_x + 283:
                 if Y + self.pos_y + 30 < CharacterPos[1] < Y + self.pos_y + 420:
-                    print "detected down"
                     return True
+            for item in listItems:
+                if X + self.pos_x - 107 < item.pos_x < X + self.pos_x + 283:
+                    if Y + self.pos_y + 30 < item.pos_y < Y + self.pos_y + 420:
+                        return True
+
         if self.speed_y == -2:
-            #area = (X + self.pos_x - 107, Y + self.pos_y + 90, 296, -390)
             if X + self.pos_x - 107 < CharacterPos[0] < X + self.pos_x + 283:
                 if Y + self.pos_y - 300 < CharacterPos[1] < Y + self.pos_y + 90:
-                    print "detected up"
                     return True
+            for item in listItems:
+                if X + self.pos_x - 107 < item.pos_x < X + self.pos_x + 283:
+                    if Y + self.pos_y - 300 < item.pos_y < Y + self.pos_y + 90:
+                        return True
+
         if self.speed_x == 2:
-            #area = (X + self.pos_x + 30, Y + self.pos_y - 107, 390, 296)
-            if X + self.pos_x + 30 < CharacterPos[0] < X + self.pos_x + 420:
+            if X + self.pos_x + 30 < CharacterPos[0] < X + self.pos_x + 220:
                 if Y + self.pos_y - 107 < CharacterPos[1] < Y + self.pos_y + 189:
-                    print "detected right"
                     return True
+            for item in listItems:
+                if X + self.pos_x + 30 < item.pos_x < X + self.pos_x + 220:
+                    if Y + self.pos_y - 107 < item.pos_y < Y + self.pos_y + 189:
+                        return True
+
         if self.speed_x == -2:
-            #area = (X + self.pos_x + 90, Y + self.pos_y - 107, -390, 296)
             if X + self.pos_x - 300 < CharacterPos[0] < X + self.pos_x + 90:
                 if Y + self.pos_y - 107 < CharacterPos[1] < Y + self.pos_y + 189:
-                    print "detected left"
                     return True
-        #pygame.draw.rect(screen, Red, area)
+            for item in listItems:
+                if X + self.pos_x - 300 < item.pos_x < X + self.pos_x + 90:
+                    if Y + self.pos_y - 107 < item.pos_y < Y + self.pos_y + 189:
+                        return True
+
+        return False
 
 
 def wall_check(direction):
@@ -327,16 +342,16 @@ listItems = []
 PlayCharacter = CharacterClass()
 
 # Create items
-Paintball_ammo1 = Items(400, 400, 0)
+Paintball_ammo1 = Items(800, 600, 0)
 listItems.append(Paintball_ammo1)
 
-Paintball_ammo2 = Items(0, 400, 0)
+Paintball_ammo2 = Items(800, 500, 0)
 listItems.append(Paintball_ammo2)
 
 Rubbish1 = Items(0, 0, 1)
 listItems.append(Rubbish1)
 
-Paint_grenade1 = Items(300, 300, 2)
+Paint_grenade1 = Items(900, 600, 2)
 listItems.append(Paint_grenade1)
 
 # Create roombas
@@ -376,9 +391,9 @@ while Running:
     # Draws the Roombas
     for roomba in roombas:
         roomba.update()
+        roomba.detect()
         roomba.draw()
         roomba.collision()
-        roomba.detect()
 
     # Rotates the Charcter
     PlayCharacter.rotate()
