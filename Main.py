@@ -226,6 +226,8 @@ class Roomba:
 
         self.rotate = rotation
 
+        self.detect = False
+
         # Which direction the roomba is going in
         if self.rotate == 90 or self.rotate == 270:
             self.speed_x = 2
@@ -253,7 +255,7 @@ class Roomba:
 
     def draw(self):
         """Draws the Roomba's, Will draw red roomba if player has been detected"""
-        if roomba.detect():
+        if self.detect:
             roomba_rotate = pygame.transform.rotate(RoombaModelHostile, self.rotate)
         else:
             roomba_rotate = pygame.transform.rotate(RoombaModel, self.rotate)
@@ -265,45 +267,55 @@ class Roomba:
             if CharacterPos[1] - 50 < Y + self.pos_y + 47 < CharacterPos[1] + 50:
                 print "game over"
 
-    def detect(self):
+    def detects(self):
         """Checks if roomba detects player or items"""
         if self.speed_y == 2:
             if X + self.pos_x - 107 < CharacterPos[0] < X + self.pos_x + 283:
                 if Y + self.pos_y + 30 < CharacterPos[1] < Y + self.pos_y + 420:
-                    return True
+                    self.detect = True
+                    return
             for item in listItems:
-                if X + self.pos_x - 107 < item.pos_x < X + self.pos_x + 283:
-                    if Y + self.pos_y + 30 < item.pos_y < Y + self.pos_y + 420:
-                        return True
+                if self.pos_x - 107 < item.pos_x < self.pos_x + 283:
+                    if self.pos_y + 30 < item.pos_y < self.pos_y + 420:
+                        self.detect = True
+                        return
 
-        if self.speed_y == -2:
+        elif self.speed_y == -2:
             if X + self.pos_x - 107 < CharacterPos[0] < X + self.pos_x + 283:
                 if Y + self.pos_y - 300 < CharacterPos[1] < Y + self.pos_y + 90:
-                    return True
+                    self.detect = True
+                    return
             for item in listItems:
-                if X + self.pos_x - 107 < item.pos_x < X + self.pos_x + 283:
-                    if Y + self.pos_y - 300 < item.pos_y < Y + self.pos_y + 90:
-                        return True
+                if self.pos_x - 107 < item.pos_x < self.pos_x + 283:
+                    if self.pos_y - 300 < item.pos_y < self.pos_y + 90:
+                        self.detect = True
+                        return
 
-        if self.speed_x == 2:
-            if X + self.pos_x + 30 < CharacterPos[0] < X + self.pos_x + 220:
+        elif self.speed_x == 2:
+            if X + self.pos_x + 30 < CharacterPos[0] < X + self.pos_x + 420:
                 if Y + self.pos_y - 107 < CharacterPos[1] < Y + self.pos_y + 189:
-                    return True
+                    self.detect = True
+                    return
             for item in listItems:
-                if X + self.pos_x + 30 < item.pos_x < X + self.pos_x + 220:
-                    if Y + self.pos_y - 107 < item.pos_y < Y + self.pos_y + 189:
-                        return True
+                if self.pos_x + 30 < item.pos_x < self.pos_x + 420:
+                    if self.pos_y - 107 < item.pos_y < self.pos_y + 189:
+                        self.detect = True
+                        return
 
-        if self.speed_x == -2:
+        elif self.speed_x == -2:
             if X + self.pos_x - 300 < CharacterPos[0] < X + self.pos_x + 90:
                 if Y + self.pos_y - 107 < CharacterPos[1] < Y + self.pos_y + 189:
-                    return True
+                    self.detect = True
+                    return
             for item in listItems:
-                if X + self.pos_x - 300 < item.pos_x < X + self.pos_x + 90:
-                    if Y + self.pos_y - 107 < item.pos_y < Y + self.pos_y + 189:
-                        return True
+                if self.pos_x - 300 < item.pos_x < self.pos_x + 90:
+                    if self.pos_y - 107 < item.pos_y < self.pos_y + 189:
+                        self.detect = True
+                        return
 
-        return False
+
+
+        self.detect = False
 
 
 def wall_check(direction):
@@ -364,7 +376,7 @@ roombas.append(Roomba2)
 Roomba3 = Roomba(200, -200, 300, 0)
 roombas.append(Roomba3)
 
-Roomba4 = Roomba(500, 800, 1000, 90)
+Roomba4 = Roomba(500, 800, 1000, 0)
 roombas.append(Roomba4)
 
 # MainLoop
@@ -391,7 +403,7 @@ while Running:
     # Draws the Roombas
     for roomba in roombas:
         roomba.update()
-        roomba.detect()
+        roomba.detects()
         roomba.draw()
         roomba.collision()
 
