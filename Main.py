@@ -43,8 +43,8 @@ TextFont = pygame.font.SysFont("impact", 60)
 # Importing the art
 Background = pygame.image.load("maptest.png")
 CharacterModel = pygame.image.load("Art-assets/Character.png")
-RoombaModel = pygame.image.load("Art-assets/Roomba (passive) hitbox reduced.png")
-RoombaModelHostile = pygame.image.load("Art-assets/Roomba (hostile) hitbox reduced.png")
+RoombaModel = pygame.image.load("Art-assets/RoombaBlue.png")
+RoombaModelHostile = pygame.image.load("Art-assets/RoombaRed.png")
 RubbishArt = pygame.image.load("Art-assets/Rubbish.png")
 PaintballAmmo = pygame.image.load("Art-assets/Ammo.png")
 PaintGrenade = pygame.image.load("Art-assets/Grenade.png")
@@ -226,7 +226,7 @@ class Roomba:
 
         self.rotate = rotation
 
-        self.detect = False
+        self.detect = 0
 
         # Which direction the roomba is going in
         if self.rotate == 90 or self.rotate == 270:
@@ -247,11 +247,24 @@ class Roomba:
 
         if self.pos_x < self.start_x or self.pos_x > self.dest_x:
             self.speed_x = -self.speed_x
-            self.rotate += 180
 
         if self.pos_y < self.start_y or self.pos_y > self.dest_y:
             self.speed_y = -self.speed_y
-            self.rotate += 180
+
+        if self.detect == 1:
+            vector = sub((self.pos_x + X, self.pos_y + Y), CharacterPos)
+            self.rotate = (math.atan2(vector[0], vector[1]) * 57.2958) + 180
+
+        else:
+            if self.speed_y == 2:
+                self.rotate = 0
+            elif self.speed_y == -2:
+                self.rotate = 180
+            elif self.speed_x == 2:
+                self.rotate = 90
+            elif self.speed_x == -2:
+                self.rotate = 270
+
 
     def draw(self):
         """Draws the Roomba's, Will draw red roomba if player has been detected"""
@@ -269,53 +282,53 @@ class Roomba:
 
     def detects(self):
         """Checks if roomba detects player or items"""
-        if self.speed_y == 2:
-            if X + self.pos_x - 107 < CharacterPos[0] < X + self.pos_x + 283:
-                if Y + self.pos_y + 30 < CharacterPos[1] < Y + self.pos_y + 420:
-                    self.detect = True
-                    return
-            for item in listItems:
-                if self.pos_x - 107 < item.pos_x < self.pos_x + 283:
-                    if self.pos_y + 30 < item.pos_y < self.pos_y + 420:
-                        self.detect = True
-                        return
+        vector = sub((self.pos_x + X, self.pos_y + Y), CharacterPos)
+        vector_x = vector[0]
+        vector_y = vector[1]
+        vector_x += Width/2
+        vector_y += Height/2
 
-        elif self.speed_y == -2:
-            if X + self.pos_x - 107 < CharacterPos[0] < X + self.pos_x + 283:
-                if Y + self.pos_y - 300 < CharacterPos[1] < Y + self.pos_y + 90:
-                    self.detect = True
-                    return
-            for item in listItems:
-                if self.pos_x - 107 < item.pos_x < self.pos_x + 283:
-                    if self.pos_y - 300 < item.pos_y < self.pos_y + 90:
-                        self.detect = True
-                        return
+        point1 = (vector_x - 20, vector_y)
+        point2 = (vector_x + 20, vector_y)
+        point3 = (vector_x + 150, vector_y + 300)
+        point4 = (vector_x - 150, vector_y + 300)
 
-        elif self.speed_x == 2:
-            if X + self.pos_x + 30 < CharacterPos[0] < X + self.pos_x + 420:
-                if Y + self.pos_y - 107 < CharacterPos[1] < Y + self.pos_y + 189:
-                    self.detect = True
-                    return
-            for item in listItems:
-                if self.pos_x + 30 < item.pos_x < self.pos_x + 420:
-                    if self.pos_y - 107 < item.pos_y < self.pos_y + 189:
-                        self.detect = True
-                        return
+        point1 = rotatePoint((self.pos_x + X, self.pos_y + Y), point1, -self.rotate)
+        point2 = rotatePoint((self.pos_x + X, self.pos_y + Y), point2, -self.rotate)
+        point3 = rotatePoint((self.pos_x + X, self.pos_y + Y), point3, -self.rotate)
+        point4 = rotatePoint((self.pos_x + X, self.pos_y + Y), point4, -self.rotate)
 
-        elif self.speed_x == -2:
-            if X + self.pos_x - 300 < CharacterPos[0] < X + self.pos_x + 90:
-                if Y + self.pos_y - 107 < CharacterPos[1] < Y + self.pos_y + 189:
-                    self.detect = True
-                    return
-            for item in listItems:
-                if self.pos_x - 300 < item.pos_x < self.pos_x + 90:
-                    if self.pos_y - 107 < item.pos_y < self.pos_y + 189:
-                        self.detect = True
-                        return
+        point1 = (int(point1[0]) + 32, int(point1[1]) + 32)
+        point2 = (int(point2[0]) + 32, int(point2[1]) + 32)
+        point3 = (int(point3[0]) + 32, int(point3[1]) + 32)
+        point4 = (int(point4[0]) + 32, int(point4[1]) + 32)
+
+        area = point1,point2,point3,point4
+        pygame.draw.polygon(screen, Red, area)
+        detect_player = screen.get_at(CharacterPos)
+
+        if detect_player == Red:
+            self.detect = 1
+            return
+
+        for item in listItems:
+            detect_item = screen.get_at((item.pos_x, item.pos_y))
+            if detect_item == Red:
+                self.detect = 2
+                return
+
+        self.detect = 0
 
 
-
-        self.detect = False
+def rotatePoint(centerPoint,point,angle):
+    """Rotates a point around another centerPoint. Angle is in degrees.
+    Rotation is counter-clockwise"""
+    angle = math.radians(angle)
+    temp_point = point[0]-centerPoint[0] , point[1]-centerPoint[1]
+    temp_point = ( temp_point[0]*math.cos(angle)-temp_point[1]*math.sin(angle) , temp_point[0]*math.sin(angle)+temp_point[1]*math.cos(angle))
+    temp_point = temp_point[0]+centerPoint[0] , temp_point[1]+centerPoint[1]
+    return temp_point
+     # http://stackoverflow.com/questions/20023209/function-for-rotating-2d-objects
 
 
 def wall_check(direction):
@@ -360,13 +373,14 @@ listItems.append(Paintball_ammo1)
 Paintball_ammo2 = Items(800, 500, 0)
 listItems.append(Paintball_ammo2)
 
-Rubbish1 = Items(0, 0, 1)
+Rubbish1 = Items(0, 20, 1)
 listItems.append(Rubbish1)
 
 Paint_grenade1 = Items(900, 600, 2)
 listItems.append(Paint_grenade1)
 
 # Create roombas
+
 Roomba1 = Roomba(0, 0, 200, 90)
 roombas.append(Roomba1)
 
@@ -376,7 +390,7 @@ roombas.append(Roomba2)
 Roomba3 = Roomba(200, -200, 300, 0)
 roombas.append(Roomba3)
 
-Roomba4 = Roomba(500, 800, 1000, 0)
+Roomba4 = Roomba(500, 800, 300, 0)
 roombas.append(Roomba4)
 
 # MainLoop
@@ -395,7 +409,9 @@ while Running:
 
     # Function for shooting the paintballs
     TempTime = PlayCharacter.shoot_paint_ball(TempTime)
-
+    #for roomba in roombas:
+    #    roomba.update()
+    #    roomba.detects()
     # Updates the positions on the screen
     screen.fill(White)
     screen.blit(Background, (X, Y))
