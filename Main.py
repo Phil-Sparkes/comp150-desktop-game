@@ -306,6 +306,7 @@ class Roomba:
         area = point1,point2,point3,point4
         pygame.draw.polygon(screen, Red, area)
         detect_player = screen.get_at(CharacterPos)
+        pygame.draw.polygon(screen, Blue, area)
 
         if detect_player == Red:
             self.detect = 1
@@ -410,8 +411,8 @@ while Running:
     # Function for shooting the paintballs
     TempTime = PlayCharacter.shoot_paint_ball(TempTime)
     #for roomba in roombas:
-    #    roomba.update()
-    #    roomba.detects()
+        #roomba.update()
+        #roomba.detects()
     # Updates the positions on the screen
     screen.fill(White)
     screen.blit(Background, (X, Y))

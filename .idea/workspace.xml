@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4a18fb77-fbab-4ba1-9bd7-18322f8c449f" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Main.py" afterPath="$PROJECT_DIR$/Main.py" />
     </list>
     <ignored path="Roomba_Uprising.iws" />
@@ -17,7 +16,7 @@
   </component>
   <component name="CoverageDataManager">
     <SUITE FILE_PATH="coverage/comp150-desktop-game$test.coverage" NAME="test Coverage Results" MODIFIED="1478873854953" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/comp150-desktop-game$Main.coverage" NAME="Main Coverage Results" MODIFIED="1478880430677" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/comp150-desktop-game$Main.coverage" NAME="Main Coverage Results" MODIFIED="1478885972611" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/comp150-desktop-game$oxotest.coverage" NAME="oxotest Coverage Results" MODIFIED="1478517083258" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="U:/comp110-worksheets/worksheet_D" />
     <SUITE FILE_PATH="coverage/comp150-desktop-game$Title_Screen.coverage" NAME="Title Screen Coverage Results" MODIFIED="1478611426286" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Roomba_Uprising$Main.coverage" NAME="Main Coverage Results" MODIFIED="1477389315493" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
@@ -34,24 +33,12 @@
       <file leaf-file-name="Main.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2006">
-              <caret line="286" column="28" selection-start-line="286" selection-start-column="28" selection-end-line="286" selection-end-column="28" />
+            <state relative-caret-position="170">
+              <caret line="273" column="77" selection-start-line="273" selection-start-column="77" selection-end-line="273" selection-end-column="77" />
               <folding>
                 <element signature="e#0#13#0" expanded="true" />
                 <element signature="e#5744#6669#0" expanded="false" />
-                <element signature="e#10973#11725#0" expanded="false" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="test.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/test.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="408">
-              <caret line="24" column="0" selection-start-line="24" selection-start-column="0" selection-end-line="24" selection-end-column="34" />
-              <folding>
-                <element signature="e#0#13#0" expanded="true" />
+                <element signature="e#11021#11773#0" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -483,6 +470,7 @@
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32980973" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32980973" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
@@ -495,7 +483,6 @@
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
@@ -531,7 +518,7 @@
           <folding>
             <element signature="e#0#13#0" expanded="true" />
             <element signature="e#5744#6669#0" expanded="false" />
-            <element signature="e#10973#11725#0" expanded="false" />
+            <element signature="e#11021#11773#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -543,7 +530,7 @@
           <folding>
             <element signature="e#0#13#0" expanded="true" />
             <element signature="e#5744#6669#0" expanded="false" />
-            <element signature="e#10973#11725#0" expanded="false" />
+            <element signature="e#11021#11773#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -556,7 +543,7 @@
           <folding>
             <element signature="e#0#13#0" expanded="true" />
             <element signature="e#5744#6669#0" expanded="false" />
-            <element signature="e#10973#11725#0" expanded="false" />
+            <element signature="e#11021#11773#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -581,7 +568,7 @@
           <folding>
             <element signature="e#0#13#0" expanded="true" />
             <element signature="e#5744#6669#0" expanded="false" />
-            <element signature="e#10973#11725#0" expanded="false" />
+            <element signature="e#11021#11773#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -594,7 +581,7 @@
           <folding>
             <element signature="e#0#13#0" expanded="true" />
             <element signature="e#5744#6669#0" expanded="false" />
-            <element signature="e#10973#11725#0" expanded="false" />
+            <element signature="e#11021#11773#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -607,7 +594,7 @@
           <folding>
             <element signature="e#0#13#0" expanded="true" />
             <element signature="e#5744#6669#0" expanded="false" />
-            <element signature="e#10973#11725#0" expanded="false" />
+            <element signature="e#11021#11773#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -701,9 +688,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="408">
           <caret line="24" column="0" selection-start-line="24" selection-start-column="0" selection-end-line="24" selection-end-column="34" />
-          <folding>
-            <element signature="e#0#13#0" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -719,12 +704,12 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2006">
-          <caret line="286" column="28" selection-start-line="286" selection-start-column="28" selection-end-line="286" selection-end-column="28" />
+        <state relative-caret-position="170">
+          <caret line="273" column="77" selection-start-line="273" selection-start-column="77" selection-end-line="273" selection-end-column="77" />
           <folding>
             <element signature="e#0#13#0" expanded="true" />
             <element signature="e#5744#6669#0" expanded="false" />
-            <element signature="e#10973#11725#0" expanded="false" />
+            <element signature="e#11021#11773#0" expanded="false" />
           </folding>
         </state>
       </provider>
