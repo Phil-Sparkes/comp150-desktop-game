@@ -8,6 +8,6 @@ before_install:
 # command to install dependencies  
 # command to run tests
 script:
-    - "test_sample.py"
+    - "script.py"
 virtualenv:
     system_site_packages: true
