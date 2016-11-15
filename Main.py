@@ -15,8 +15,9 @@ Height = 720
 
 CharacterPos = (Width/2, Height/2)
 
-# Used for delay between shooting paintballs
-TempTime = 0
+# Used for delay between shooting paintballs and grenades
+PaintBallDelay = 0
+GrenadeDelay = 0
 
 # For the character movement and map tracking
 Y = 0
@@ -72,7 +73,7 @@ class CharacterClass:
 
         # Item counters
         self.paint_ball_ammo = 9
-        self.paint_grenade = 0
+        self.paint_grenade = 5
         self.rubbish = 0
 
         # Paintball properties
@@ -81,6 +82,12 @@ class CharacterClass:
         self.ball_speed = (0, 0)
         self.ball_colour = Red
 
+        # Paint Grenade properties
+        self.grenade_position = (self.pos_x, self.pos_y)
+        self.grenade_spawn = False
+        self.grenade_speed = (0, 0)
+        self.grenade_timer = 0
+
     def rotate(self):
         """Rotates the player to follow the mouse"""
         mouse_x, mouse_y = pygame.mouse.get_pos()
@@ -88,10 +95,10 @@ class CharacterClass:
         mouse_y2 = mouse_y - self.pos_y
         self.rotation = (math.atan2(mouse_x2, mouse_y2) * 57.2958) + 180
 
-    def shoot_paint_ball(self, TempTime):
+    def shoot_paint_ball(self, PaintBallDelay):
         """Shoots the paintball gun"""
         mouse_press = pygame.mouse.get_pressed()[0]
-        if not pygame.time.get_ticks() - 500 < TempTime:
+        if not pygame.time.get_ticks() - 500 < PaintBallDelay:
             if mouse_press == 1:
                 if self.paint_ball_ammo > 0:
                     # Decreases the ammo count
@@ -117,15 +124,19 @@ class CharacterClass:
                     # Generates the ball speed as a result
                     self.ball_speed = (int(vector[0]), (int(vector[1])))
 
-                    TempTime = pygame.time.get_ticks()
+                    PaintBallDelay = pygame.time.get_ticks()
 
-        return TempTime
+        return PaintBallDelay
 
     def update(self):
-        if self.ball_spawn is True:
+        if self.ball_spawn:
             # Updates the position of the ball
             self.ball_position = (self.ball_position[0] + self.ball_speed[0]), (self.ball_position[1] + self.ball_speed[1])
-            self.paintballhit()
+            self.paintball_hit()
+
+        if self.grenade_spawn:
+            # Updates the position of the grenade
+            self.grenade_position = (self.grenade_position[0] + self.grenade_speed[0]), (self.grenade_position[1] + self.grenade_speed[1])
 
         # Draws the character
         character_rotation = pygame.transform.rotate(CharacterModel, self.rotation)
@@ -143,8 +154,16 @@ class CharacterClass:
                 self.paint_grenade += 1
 
         # Draws a paintball if conditions are met
-        if self.ball_spawn is True:
+        if self.ball_spawn:
             pygame.draw.circle(screen, self.ball_colour, self.ball_position, 5)
+
+        if self.grenade_spawn:
+            # Paint grenades will last for 700 ticks before disapearing
+            if pygame.time.get_ticks() - 700 > self.grenade_timer:
+                self.grenade_spawn = False
+                self.grenade_explosion()
+                # Draws paint grenade
+            pygame.draw.circle(screen, Red, self.grenade_position, 15)
 
         # Draws the HUD
         pygame.draw.rect(screen, Black, rect)
@@ -189,15 +208,50 @@ class CharacterClass:
 
         return x, y
 
-    def paintballhit(self):
+    def paintball_hit(self):
+        """Checks if paintball comes into contact with a Roomba"""
         for roomba in roombas:
-            #print ""
-            #print self.ball_position[0]
-            #print roomba.pos_x
-            if roomba.pos_x + X< self.ball_position[0] < roomba.pos_x + X + 64:
+            if roomba.pos_x + X < self.ball_position[0] < roomba.pos_x + X + 64:
                 if roomba.pos_y + Y < self.ball_position[1] < roomba.pos_y + Y + 64:
                     print "hit"
 
+    def paint_grenade_throw(self, GrenadeDelay):
+        pressed = pygame.key.get_pressed()
+        if pressed[pygame.K_SPACE] and self.paint_grenade > 0 and self.grenade_spawn is False:
+            if not pygame.time.get_ticks() - 1000 < GrenadeDelay:
+                    # Decreases the ammo count
+                    self.paint_grenade -= 1
+                    self.grenade_spawn = True
+
+                    # Gets the initial position of the ball
+                    self.grenade_position = (self.pos_x, self.pos_y)
+
+                    # Creates a vector
+                    mouse_x, mouse_y = pygame.mouse.get_pos()
+                    vector = sub((mouse_x, mouse_y), self.grenade_position)
+
+                    # Gets the sum of the vector and divides by 10 (increases the speed)
+                    vector_total = ((math.sqrt(vector[0] ** 2)) + (math.sqrt(vector[1] ** 2))) / 10
+
+                    # Divides the vector by this new vector
+                    vector = (vector[0] / vector_total), (vector[1] / vector_total)
+
+                    # Generates the ball speed as a result
+                    self.grenade_speed = (int(vector[0]), (int(vector[1])))
+
+                    GrenadeDelay = pygame.time.get_ticks()
+                    self.grenade_timer = pygame.time.get_ticks()
+
+        return GrenadeDelay
+
+    def grenade_explosion(self):
+        GrenadeExplosion = (self.grenade_position[0] - 200, self.grenade_position[1] - 200, 400, 400)
+        pygame.draw.rect(screen, Yellow, GrenadeExplosion)
+        for roomba in roombas:
+            if roomba.pos_x + X - 200 < self.grenade_position[0]< roomba.pos_x + X + 200:
+                if roomba.pos_y + Y - 200 < self.grenade_position[1] < roomba.pos_y + Y + 200:
+                    print "Ka-boom!"
+                    roombas.remove(roomba)
 
 class Items:
     """Class for the items"""
@@ -352,8 +406,6 @@ class Roomba:
             self.detect = 1
             return
 
-
-
         self.detect = 0
 
 
@@ -445,7 +497,8 @@ while Running:
                 Running = False
 
     # Function for shooting the paintballs
-    TempTime = PlayCharacter.shoot_paint_ball(TempTime)
+    PaintBallDelay = PlayCharacter.shoot_paint_ball(PaintBallDelay)
+    GrenadeDelay = PlayCharacter.paint_grenade_throw(GrenadeDelay)
     #for roomba in roombas:
         #roomba.update()
         #roomba.detects()
