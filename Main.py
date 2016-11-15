@@ -42,12 +42,18 @@ TextFont = pygame.font.SysFont("impact", 60)
 
 # Importing the art
 Background = pygame.image.load("maptest.png")
-CharacterModel = pygame.image.load("Art-assets/Character.png")
+CharacterModel = pygame.image.load("character2.png")
 RoombaModel = pygame.image.load("Art-assets/RoombaBlue.png")
 RoombaModelHostile = pygame.image.load("Art-assets/RoombaRed.png")
 RubbishArt = pygame.image.load("Art-assets/Rubbish.png")
 PaintballAmmo = pygame.image.load("Art-assets/Ammo.png")
 PaintGrenade = pygame.image.load("Art-assets/Grenade.png")
+
+BananaPeel = pygame.image.load("Art-assets/Rubbish\Banana peel.png")
+BeerBottle = pygame.image.load("Art-assets/Rubbish/Beer bottle.png")
+WaterBottle = pygame.image.load("Art-assets/Rubbish/Bottle.png")
+GarbageCan = pygame.image.load("Art-assets/Rubbish/Garbage can.png")
+RustyCan = pygame.image.load("Art-assets/Rubbish/Rusty Can.png")
 
 # Draws the screen
 screen = pygame.display.set_mode((Width, Height))
@@ -119,6 +125,7 @@ class CharacterClass:
         if self.ball_spawn is True:
             # Updates the position of the ball
             self.ball_position = (self.ball_position[0] + self.ball_speed[0]), (self.ball_position[1] + self.ball_speed[1])
+            self.paintballhit()
 
         # Draws the character
         character_rotation = pygame.transform.rotate(CharacterModel, self.rotation)
@@ -162,7 +169,7 @@ class CharacterClass:
 
         # Draw the icons
         screen.blit(PaintballAmmo, (3, 580))
-        screen.blit(RubbishArt, (83, 580))
+        screen.blit(GarbageCan, (83, 580))
         screen.blit(PaintGrenade, (163, 580))
 
     def player_movement(self, x, y):
@@ -182,6 +189,15 @@ class CharacterClass:
 
         return x, y
 
+    def paintballhit(self):
+        for roomba in roombas:
+            #print ""
+            #print self.ball_position[0]
+            #print roomba.pos_x
+            if roomba.pos_x + X< self.ball_position[0] < roomba.pos_x + X + 64:
+                if roomba.pos_y + Y < self.ball_position[1] < roomba.pos_y + Y + 64:
+                    print "hit"
+
 
 class Items:
     """Class for the items"""
@@ -189,11 +205,14 @@ class Items:
         self.pos_x = xpos
         self.pos_y = ypos
         self.item = itemkind
+        self.detected = False
+        image_list = (BananaPeel, BeerBottle, WaterBottle, RustyCan)
+        self.image_listRan = (random.choice(image_list))
 
     def draw(self):
         """draws the items on the screen"""
         if self.item == 1:
-            screen.blit(RubbishArt, (X + self.pos_x, Y + self.pos_y))
+            screen.blit(self.image_listRan, (X + self.pos_x, Y + self.pos_y))
         if self.item == 0:
             screen.blit(PaintballAmmo, (X + self.pos_x, Y + self.pos_y))
         if self.item == 2:
@@ -265,10 +284,9 @@ class Roomba:
             elif self.speed_x == -2:
                 self.rotate = 270
 
-
     def draw(self):
         """Draws the Roomba's, Will draw red roomba if player has been detected"""
-        if self.detect:
+        if self.detect == 1 or self.detect == 2:
             roomba_rotate = pygame.transform.rotate(RoombaModelHostile, self.rotate)
         else:
             roomba_rotate = pygame.transform.rotate(RoombaModel, self.rotate)
@@ -283,6 +301,13 @@ class Roomba:
     def detects(self):
         """Checks if roomba detects player or items"""
         vector = sub((self.pos_x + X, self.pos_y + Y), CharacterPos)
+        if self.detect == 2:
+            for item in listItems:
+                pass
+                #print item.detected
+                #if item.detected:
+                #vector = sub((self.pos_x + X, self.pos_y + Y), (item.pos_x, item.pos_y))
+                #print "here"
         vector_x = vector[0]
         vector_y = vector[1]
         vector_x += Width/2
@@ -306,30 +331,41 @@ class Roomba:
         area = point1,point2,point3,point4
         pygame.draw.polygon(screen, Red, area)
         detect_player = screen.get_at(CharacterPos)
+
+        for item in listItems:
+            if 0 < (X + item.pos_x) < Width:
+                if 0 < Y + item.pos_y < Height:
+                    detect_item = screen.get_at((X + item.pos_x, Y + item.pos_y))
+                    if detect_item == Red:
+                        item.detected = True
+                    else:
+                         item.detected = False
+
         pygame.draw.polygon(screen, Blue, area)
+        for item in listItems:
+
+            if item.detected:
+                self.detect = 2
+                return
 
         if detect_player == Red:
             self.detect = 1
             return
 
-        for item in listItems:
-            detect_item = screen.get_at((item.pos_x, item.pos_y))
-            if detect_item == Red:
-                self.detect = 2
-                return
+
 
         self.detect = 0
 
 
-def rotatePoint(centerPoint,point,angle):
+def rotatePoint(centerPoint, point, angle):
     """Rotates a point around another centerPoint. Angle is in degrees.
     Rotation is counter-clockwise"""
     angle = math.radians(angle)
-    temp_point = point[0]-centerPoint[0] , point[1]-centerPoint[1]
-    temp_point = ( temp_point[0]*math.cos(angle)-temp_point[1]*math.sin(angle) , temp_point[0]*math.sin(angle)+temp_point[1]*math.cos(angle))
-    temp_point = temp_point[0]+centerPoint[0] , temp_point[1]+centerPoint[1]
+    temp_point = point[0] - centerPoint[0], point[1] - centerPoint[1]
+    temp_point = (temp_point[0] * math.cos(angle) - temp_point[1] * math.sin(angle), temp_point[0] * math.sin(angle) + temp_point[1] * math.cos(angle))
+    temp_point = temp_point[0] + centerPoint[0], temp_point[1] + centerPoint[1]
     return temp_point
-     # http://stackoverflow.com/questions/20023209/function-for-rotating-2d-objects
+    # http://stackoverflow.com/questions/20023209/function-for-rotating-2d-objects
 
 
 def wall_check(direction):
@@ -374,7 +410,7 @@ listItems.append(Paintball_ammo1)
 Paintball_ammo2 = Items(800, 500, 0)
 listItems.append(Paintball_ammo2)
 
-Rubbish1 = Items(0, 20, 1)
+Rubbish1 = Items(20, 40, 1)
 listItems.append(Rubbish1)
 
 Paint_grenade1 = Items(900, 600, 2)
