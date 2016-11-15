@@ -65,6 +65,7 @@ Clock = pygame.time.Clock()
 
 class CharacterClass:
     def __init__(self):
+        # positions the player in the center of the screen
         self.pos_x = Width / 2
         self.pos_y = Height / 2
 
@@ -95,43 +96,10 @@ class CharacterClass:
         mouse_y2 = mouse_y - self.pos_y
         self.rotation = (math.atan2(mouse_x2, mouse_y2) * 57.2958) + 180
 
-    def shoot_paint_ball(self, PaintBallDelay):
-        """Shoots the paintball gun"""
-        mouse_press = pygame.mouse.get_pressed()[0]
-        if not pygame.time.get_ticks() - 500 < PaintBallDelay:
-            if mouse_press == 1:
-                if self.paint_ball_ammo > 0:
-                    # Decreases the ammo count
-                    self.paint_ball_ammo -= 1
-                    self.ball_spawn = True
-
-                    # Sets the colour of the ball
-                    self.ball_colour = random.choice([Red, Green, Blue, Yellow])
-
-                    # Gets the initial position of the ball
-                    self.ball_position = (self.pos_x, self.pos_y)
-
-                    # Creates a vector
-                    mouse_x, mouse_y = pygame.mouse.get_pos()
-                    vector = sub((mouse_x, mouse_y), self.ball_position)
-
-                    # Gets the sum of the vector and divides by 20
-                    vector_total = ((math.sqrt(vector[0] ** 2)) + (math.sqrt(vector[1] ** 2))) / 20
-
-                    # Divides the vector by this new vector
-                    vector = (vector[0] / vector_total), (vector[1] / vector_total)
-
-                    # Generates the ball speed as a result
-                    self.ball_speed = (int(vector[0]), (int(vector[1])))
-
-                    PaintBallDelay = pygame.time.get_ticks()
-
-        return PaintBallDelay
-
     def update(self):
         if self.ball_spawn:
             # Updates the position of the ball
-            self.ball_position = (self.ball_position[0] + self.ball_speed[0]), (self.ball_position[1] + self.ball_speed[1])
+            self.ball_position = (self.ball_position[0] +  self.ball_speed[0]), (self.ball_position[1] + self.ball_speed[1])
             self.paintball_hit()
 
         if self.grenade_spawn:
@@ -208,6 +176,39 @@ class CharacterClass:
 
         return x, y
 
+    def shoot_paint_ball(self, PaintBallDelay):
+        """Shoots the paintball gun"""
+        mouse_press = pygame.mouse.get_pressed()[0]
+        if not pygame.time.get_ticks() - 500 < PaintBallDelay:
+            if mouse_press == 1:
+                if self.paint_ball_ammo > 0:
+                    # Decreases the ammo count
+                    self.paint_ball_ammo -= 1
+                    self.ball_spawn = True
+
+                    # Sets the colour of the ball
+                    self.ball_colour = random.choice([Red, Green, Blue, Yellow])
+
+                    # Gets the initial position of the ball
+                    self.ball_position = (self.pos_x, self.pos_y)
+
+                    # Creates a vector
+                    mouse_x, mouse_y = pygame.mouse.get_pos()
+                    vector = sub((mouse_x, mouse_y), self.ball_position)
+
+                    # Gets the sum of the vector and divides by 20 (increases the speed)
+                    vector_total = ((math.sqrt(vector[0] ** 2)) + (math.sqrt(vector[1] ** 2))) / 20
+
+                    # Divides the vector by this new vector
+                    vector = (vector[0] / vector_total), (vector[1] / vector_total)
+
+                    # Generates the ball speed as a result
+                    self.ball_speed = (int(vector[0]), (int(vector[1])))
+
+                    PaintBallDelay = pygame.time.get_ticks()
+
+        return PaintBallDelay
+
     def paintball_hit(self):
         """Checks if paintball comes into contact with a Roomba"""
         for roomba in roombas:
@@ -216,14 +217,15 @@ class CharacterClass:
                     print "hit"
 
     def paint_grenade_throw(self, GrenadeDelay):
+        """Code for throwing paint grenades"""
         pressed = pygame.key.get_pressed()
         if pressed[pygame.K_SPACE] and self.paint_grenade > 0 and self.grenade_spawn is False:
             if not pygame.time.get_ticks() - 1000 < GrenadeDelay:
-                    # Decreases the ammo count
+                    # Decreases the grenade count
                     self.paint_grenade -= 1
                     self.grenade_spawn = True
 
-                    # Gets the initial position of the ball
+                    # Gets the initial position of the grenade
                     self.grenade_position = (self.pos_x, self.pos_y)
 
                     # Creates a vector
@@ -240,13 +242,18 @@ class CharacterClass:
                     self.grenade_speed = (int(vector[0]), (int(vector[1])))
 
                     GrenadeDelay = pygame.time.get_ticks()
+
+                    # takes the current tick so it can explode after 700 more ticks
                     self.grenade_timer = pygame.time.get_ticks()
 
         return GrenadeDelay
 
     def grenade_explosion(self):
+        """The explosion of the grenade"""
+        # draws a rectangle for the blast radius
         GrenadeExplosion = (self.grenade_position[0] - 200, self.grenade_position[1] - 200, 400, 400)
         pygame.draw.rect(screen, Yellow, GrenadeExplosion)
+        # checks for roombas caught in the explosion
         for roomba in roombas:
             if roomba.pos_x + X - 200 < self.grenade_position[0]< roomba.pos_x + X + 200:
                 if roomba.pos_y + Y - 200 < self.grenade_position[1] < roomba.pos_y + Y + 200:
@@ -260,13 +267,15 @@ class Items:
         self.pos_y = ypos
         self.item = itemkind
         self.detected = False
-        image_list = (BananaPeel, BeerBottle, WaterBottle, RustyCan)
-        self.image_listRan = (random.choice(image_list))
+
+        # selects a random rubbish item
+        rubbish_types = (BananaPeel, BeerBottle, WaterBottle, RustyCan)
+        self.random_rubbish = (random.choice(rubbish_types))
 
     def draw(self):
         """draws the items on the screen"""
         if self.item == 1:
-            screen.blit(self.image_listRan, (X + self.pos_x, Y + self.pos_y))
+            screen.blit(self.random_rubbish, (X + self.pos_x, Y + self.pos_y))
         if self.item == 0:
             screen.blit(PaintballAmmo, (X + self.pos_x, Y + self.pos_y))
         if self.item == 2:
@@ -312,23 +321,24 @@ class Roomba:
     def update(self):
 
         # Changes the position depending on the speed
-
         self.pos_x += self.speed_x
         self.pos_y += self.speed_y
 
         # Turn around
-
         if self.pos_x < self.start_x or self.pos_x > self.dest_x:
             self.speed_x = -self.speed_x
 
         if self.pos_y < self.start_y or self.pos_y > self.dest_y:
             self.speed_y = -self.speed_y
 
+
         if self.detect == 1:
+            # faces player
             vector = sub((self.pos_x + X, self.pos_y + Y), CharacterPos)
             self.rotate = (math.atan2(vector[0], vector[1]) * 57.2958) + 180
 
         else:
+            # Rotates roomba depending on which direction it's going
             if self.speed_y == 2:
                 self.rotate = 0
             elif self.speed_y == -2:
@@ -354,6 +364,7 @@ class Roomba:
 
     def detects(self):
         """Checks if roomba detects player or items"""
+        # Creates a vector
         vector = sub((self.pos_x + X, self.pos_y + Y), CharacterPos)
         if self.detect == 2:
             for item in listItems:
@@ -367,25 +378,32 @@ class Roomba:
         vector_x += Width/2
         vector_y += Height/2
 
+        # Creates the four points for the roomba cone of view
         point1 = (vector_x - 20, vector_y)
         point2 = (vector_x + 20, vector_y)
         point3 = (vector_x + 150, vector_y + 300)
         point4 = (vector_x - 150, vector_y + 300)
 
+        # Rotates the points for the cone of view
         point1 = rotatePoint((self.pos_x + X, self.pos_y + Y), point1, -self.rotate)
         point2 = rotatePoint((self.pos_x + X, self.pos_y + Y), point2, -self.rotate)
         point3 = rotatePoint((self.pos_x + X, self.pos_y + Y), point3, -self.rotate)
         point4 = rotatePoint((self.pos_x + X, self.pos_y + Y), point4, -self.rotate)
 
+        # moves the cone of view so its centered on the roomba
         point1 = (int(point1[0]) + 32, int(point1[1]) + 32)
         point2 = (int(point2[0]) + 32, int(point2[1]) + 32)
         point3 = (int(point3[0]) + 32, int(point3[1]) + 32)
         point4 = (int(point4[0]) + 32, int(point4[1]) + 32)
 
+        # Creates a polygon out of the points
         area = point1,point2,point3,point4
+        # Draws the polygon in red
         pygame.draw.polygon(screen, Red, area)
+        # Gets the colour of the pixel at the character position
         detect_player = screen.get_at(CharacterPos)
 
+        # Checks if any items are being detected by each roomba
         for item in listItems:
             if 0 < (X + item.pos_x) < Width:
                 if 0 < Y + item.pos_y < Height:
@@ -395,17 +413,21 @@ class Roomba:
                     else:
                          item.detected = False
 
+        # Draws the polygon in blue so that its no longer red for the next roomba(otherwise all the roombas detect player when one does)
         pygame.draw.polygon(screen, Blue, area)
-        for item in listItems:
 
+        # if a roomba is detecting an item it will return
+        for item in listItems:
             if item.detected:
                 self.detect = 2
                 return
 
+        # Checks if player is detected
         if detect_player == Red:
             self.detect = 1
             return
 
+        # sets to detect to 0 if it hasn't detected anything
         self.detect = 0
 
 
