@@ -1,29 +1,32 @@
 *Tutorial Level*
 [Player]: Wh-where am I?
 Scientist: Hello? Can you hear me?
-[Player]: Who are you? Do you know whats going on?
+[Player]: Who are you? Do you know what’s going on?
 Scientist: That can come later for now you need to get out of there!
 [Player]: Okay, I'll get moving now!
-*Inscrutions*: Use the W, A, S, D keys to move your Player. Use the mouse to rotate the Player.
+*Instructions*: Use the W, A, S, D keys to move your Player. Use the mouse to rotate the Player.
 *During Player Movement*[Player]: Can you explain what's going on yet?
 Scientist: A group of programmers were testing out different code trying to improve the A.I. in Roombas to make them more efficient.
-           However in the process they accidentally made the Roombas sentient causing them to believe humanity was a desiease.
-[Player]: But they're just a bunch of Roombas, What harm could they do?
-Scientist: Thats what we thought. but we couldn't have been more wrong.
-[Player]: How do you mean?
-Scientist: The Roombas with their new sentience somehow managed to connect to the internet and gain access to roomba factories accross
-           the world. They were then able to alter the manufacturing process so that thr roombas being made were also sentient and would
-           actively seek out humans and blow up when close enough.
+           However, in the process they accidentally made the Roombas sentient causing them to believe humanity was a disease.
+[Player]: But they're just a bunch of Roombas, what harm could they do?
+Scientist: That's what we thought. but we couldn't have been more wrong.
+[Player]: What do you mean?
+Scientist: The Roombas with their new sentience somehow managed to connect to the internet and gain access to roomba factories across
+           the world. They were then able to alter the manufacturing process so that the roombas being made were also sentient and would
+           actively seek out humans and 'cleanse' them. There are 2 types of roombas, the first type are the original roombas but they're
+           programmed to explode when in a suitable range of a human so be wary of them. The second kind is a much larger type of roomba
+           that absorbs the humans it finds. The second kind are extremely dangerous and very difficult to deal with so if you come into
+           contact with them either stay hidden or run, they're big and scary but not so fast.
 [Player]: You're kidding right? There's no way that's possible.
-Scientist: I wish that was the case but unfortunatly it's not.
+Scientist: I wish that was the case but unfortunately it's not.
 [Player]: Okay, okay. Say I believe you. How exactly am I, one guy, supposed to stop it if billions of people couldn't?
-Scientist: You're not just one guy. There are a number of scientist's, including myself, working on a way to stop the roombas.
-[Player]: Okay, so where to i come into this?
-Scientist: It's to dangerous to relay information between us over the internet, they'll find us and kill us so...
+Scientist: You're not just one guy. There are a number of scientists, including myself, working on a way to stop the roombas.
+[Player]: Okay, so where do I come into this?
+Scientist: It's too dangerous to relay information between us over the internet, they'll find us and kill us so...
 [Player]: So you need people like me to run around the city delivering information from scientist to scientist.
 Scientist: Y-yes well, that's, um.
 [Player]: You want me to be a Delivery Boy.
-Scientist: Yes. But you route if filled with deadly roombas and if you fail humanity will fall.
+Scientist: Yes. But your route is filled with deadly roombas and if you fail humanity will fall.
 [Player]: Oh great, a win win situation, sounds wonderful.
 Scientist: We don't have time for sarcasm, come to my lab at *location*. I'll explain everything when you get here.
 [Player]: Okay, I'm on my way.
@@ -32,8 +35,8 @@ Scientist: We don't have time for sarcasm, come to my lab at *location*. I'll ex
 *Act 1*
 *Location*
 Scientist: Good you made it in one piece.
-[Player]: Yeah thanks for you're concern. Who are you anyway?
-Dr. Pearson: I am Doctor Pearson, One of many scientists working to stop the roomba uprising.
+[Player]: Yeah thanks for your concern. Who are you anyway?
+Dr. Pearson: I am Doctor Pearson, one of many scientists working to stop the roomba uprising.
 [Player]: Nice to meet you Doc, I'm [Player].
 Dr. Pearson: Good to know, that'll make you easier to find.
 [Player]: Easier to find?
