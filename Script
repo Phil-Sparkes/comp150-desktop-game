@@ -1,6 +1,13 @@
 [Player]: Wh-where am I?
-Scientist: Hello? Can you here me?
+Scientist: Hello? Can you hear me?
 [Player]: Who are you? Do you know whats going on?
 Scientist: That can come later for now you need to get out of there!
 [Player]: Okay, I'll get moving now!
 *Inscrutions*: Use the W, A, S, D keys to move your Player. Use the mouse to rotate the Player.
+*During Player Movement*[Player]: Can you explain what's going on yet?
+Scientist: A group of programmers were testing out different code trying to improve the A.I. in Roombas to make them more efficient.
+           However in the process they accidentally made the Roombas sentient causing them to believe humanity was a desiease.
+[Player]: But their just a bunch of Roombas, What harm could they do?
+Scientist: Thats what we thought. but we couldn't have been more wrong.
+[Player]: How do you mean?
+Scientist: The Roombas with their new sentience somehow managed to connect to the internet and gain access to 
