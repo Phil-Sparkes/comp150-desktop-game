@@ -30,3 +30,9 @@ Scientist: We don't have time for sarcasm, come to my lab at *location*. I'll ex
 *End of Tutorial Level*
 
 *Act 1*
+*Location*
+Scientist: Good you made it in one piece.
+[Player]: Yeah thanks for you're concern. Who are you anyway?
+Dr. Pearson: I am Doctor Pearson, One of many scientists working to stop the roomba uprising.
+[Player]: Nice to meet you Doc, I'm [Player].
+Dr. Pearson:
