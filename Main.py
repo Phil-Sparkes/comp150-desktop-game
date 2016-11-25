@@ -113,7 +113,7 @@ class CharacterClass:
         # Draws the Items and keeps track of how many the player has
         for item in listItems:
             item.draw()
-            item_counter = item.update()
+            item_counter = item.player_collision()
             if item_counter == 0:
                 self.paint_ball_ammo += 3
             if item_counter == 1:
@@ -260,6 +260,7 @@ class CharacterClass:
                     print "Ka-boom!"
                     roombas.remove(roomba)
 
+
 class Items:
     """Class for the items"""
     def __init__(self, xpos, ypos, itemkind):
@@ -281,7 +282,7 @@ class Items:
         if self.item == 2:
             screen.blit(PaintGrenade, (X + self.pos_x, Y + self.pos_y))
 
-    def update(self):
+    def player_collision(self):
         """detects collision with the player"""
         if CharacterPos[0] - 64 < X + self.pos_x < CharacterPos[0] + 64:
             if CharacterPos[1] - 64 < Y + self.pos_y < CharacterPos[1] + 64:
@@ -289,6 +290,14 @@ class Items:
                 listItems.remove(self)
                 # Returns a value corresponding to the item picked up
                 return self.item
+
+    def roomba_collision(self, roomba):
+        """detects collision with roombas"""
+        if roomba.pos_x - 64  + X < X + self.pos_x < roomba.pos_x + 64 + X:
+            if roomba.pos_y - 64 + Y < Y + self.pos_y < roomba.pos_y + 64 + Y:
+                # Removes the item from the list
+                listItems.remove(self)
+
 
 
 class Roomba:
@@ -303,6 +312,9 @@ class Roomba:
         self.start_x = x_pos
         self.start_y = y_pos
 
+        self.speed_y = 0
+        self.speed_x = 0
+
         self.dest_x = x_pos + distance_x
         self.dest_y = y_pos + distance_y
 
@@ -316,10 +328,10 @@ class Roomba:
     def move(self):
         if self.switch:
             if self.move_towards_point((self.dest_x + X, self.dest_y + Y)):
-                 self.switch = False
+                self.switch = False
         else:
             if self.move_towards_point((self.start_x + X, self.start_y + Y)):
-                 self.switch = True
+                self.switch = True
 
     def draw(self):
         """Draws the Roomba's, Will draw red roomba if player has been detected"""
@@ -339,13 +351,7 @@ class Roomba:
         """Checks if roomba detects player or items"""
         # Creates a vector
         vector = sub((self.pos_x + X, self.pos_y + Y), CharacterPos)
-        if self.detect == 2:
-            for item in listItems:
-                pass
-                #print item.detected
-                #if item.detected:
-                #vector = sub((self.pos_x + X, self.pos_y + Y), (item.pos_x, item.pos_y))
-                #print "here"
+
         vector_x = vector[0]
         vector_y = vector[1]
         vector_x += Width/2
@@ -358,10 +364,10 @@ class Roomba:
         point4 = (vector_x - 150, vector_y + 300)
 
         # Rotates the points for the cone of view
-        point1 = rotatePoint((self.pos_x + X, self.pos_y + Y), point1, -self.rotate)
-        point2 = rotatePoint((self.pos_x + X, self.pos_y + Y), point2, -self.rotate)
-        point3 = rotatePoint((self.pos_x + X, self.pos_y + Y), point3, -self.rotate)
-        point4 = rotatePoint((self.pos_x + X, self.pos_y + Y), point4, -self.rotate)
+        point1 = rotate_point((self.pos_x + X, self.pos_y + Y), point1, -self.rotate)
+        point2 = rotate_point((self.pos_x + X, self.pos_y + Y), point2, -self.rotate)
+        point3 = rotate_point((self.pos_x + X, self.pos_y + Y), point3, -self.rotate)
+        point4 = rotate_point((self.pos_x + X, self.pos_y + Y), point4, -self.rotate)
 
         # moves the cone of view so its centered on the roomba
         point1 = (int(point1[0]) + 32, int(point1[1]) + 32)
@@ -370,7 +376,7 @@ class Roomba:
         point4 = (int(point4[0]) + 32, int(point4[1]) + 32)
 
         # Creates a polygon out of the points
-        area = point1,point2,point3,point4
+        area = point1, point2, point3, point4
         # Draws the polygon in red
         pygame.draw.polygon(screen, Red, area)
         # Gets the colour of the pixel at the character position
@@ -378,13 +384,12 @@ class Roomba:
 
         # Checks if any items are being detected by each roomba
         for item in listItems:
-            if 0 < (X + item.pos_x) < Width:
-                if 0 < Y + item.pos_y < Height:
-                    detect_item = screen.get_at((X + item.pos_x, Y + item.pos_y))
-                    if detect_item == Red:
-                        item.detected = True
-                    else:
-                         item.detected = False
+            if 0 < (X + item.pos_x) < Width and 0 < Y + item.pos_y < Height:
+                detect_item = screen.get_at((X + item.pos_x, Y + item.pos_y))
+                if detect_item == Red:
+                    item.detected = True
+                else:
+                    item.detected = False
 
         # Draws the polygon in blue so that its no longer red for the next roomba(otherwise all the roombas detect player when one does)
         pygame.draw.polygon(screen, Blue, area)
@@ -393,7 +398,7 @@ class Roomba:
         for item in listItems:
             if item.detected:
                 self.detect = 2
-                return
+                return item
 
         # Checks if player is detected
         if detect_player == Red:
@@ -414,8 +419,14 @@ class Roomba:
     def chase_player(self):
         self.move_towards_point(CharacterPos)
 
+    def chase_item(self, item):
+        """When roombas see items they move towards them"""
+        self.move_towards_point((item.pos_x + X, item.pos_y + Y))
+        # checks if roomba has reached item
+        item.roomba_collision(self)
+
     def return_to_position(self):
-        if self.move_towards_point((self.start_x+ X, self.start_y + Y)):
+        if self.move_towards_point((self.start_x + X, self.start_y + Y)):
             self.returning = False
 
     def move_towards_point(self, point):
@@ -449,13 +460,13 @@ class Roomba:
             return True
 
 
-def rotatePoint(centerPoint, point, angle):
-    """Rotates a point around another centerPoint. Angle is in degrees.
+def rotate_point(center_point, point, angle):
+    """Rotates a point around another center_point. Angle is in degrees.
     Rotation is counter-clockwise"""
     angle = math.radians(angle)
-    temp_point = point[0] - centerPoint[0], point[1] - centerPoint[1]
+    temp_point = point[0] - center_point[0], point[1] - center_point[1]
     temp_point = (temp_point[0] * math.cos(angle) - temp_point[1] * math.sin(angle), temp_point[0] * math.sin(angle) + temp_point[1] * math.cos(angle))
-    temp_point = temp_point[0] + centerPoint[0], temp_point[1] + centerPoint[1]
+    temp_point = temp_point[0] + center_point[0], temp_point[1] + center_point[1]
     return temp_point
     # http://stackoverflow.com/questions/20023209/function-for-rotating-2d-objects
 
@@ -502,7 +513,7 @@ listItems.append(Paintball_ammo1)
 Paintball_ammo2 = Items(800, 500, 0)
 listItems.append(Paintball_ammo2)
 
-Rubbish1 = Items(20, 40, 1)
+Rubbish1 = Items(-100, 40, 1)
 listItems.append(Rubbish1)
 
 Paint_grenade1 = Items(900, 600, 2)
@@ -540,18 +551,21 @@ while Running:
     PaintBallDelay = PlayCharacter.shoot_paint_ball(PaintBallDelay)
     GrenadeDelay = PlayCharacter.paint_grenade_throw(GrenadeDelay)
     for roomba in roombas:
-        if roomba.returning == False:
+        item_detected = roomba.detects()
+        if not roomba.returning:
             if roomba.detect == 0:
                 roomba.move()
+            elif roomba.detect == 2:
+                roomba.chase_item(item_detected)
             else:
                 roomba.chase_player()
+
     # Updates the positions on the screen
     screen.fill(White)
     screen.blit(Background, (X, Y))
 
     # Draws the Roombas
     for roomba in roombas:
-        roomba.detects()
         roomba.draw()
         roomba.collision()
 
