@@ -292,7 +292,7 @@ class Items:
 
 
 class Roomba:
-    def __init__(self, x_pos, y_pos, distance, rotation):
+    def __init__(self, x_pos, y_pos, distance_x, distance_y):
         """Roomba class takes:
         x and y coordinates for starting position
         distance for how far it travels
@@ -303,50 +303,27 @@ class Roomba:
         self.start_x = x_pos
         self.start_y = y_pos
 
-        self.dest_x = x_pos + distance
-        self.dest_y = y_pos + distance
+        self.dest_x = x_pos + distance_x
+        self.dest_y = y_pos + distance_y
 
-        self.rotate = rotation
+        self.start_rotate = 0
+        self.rotate = 0
 
         self.detect = 0
+        self.returning = False
 
-        # Which direction the roomba is going in
-        if self.rotate == 90 or self.rotate == 270:
-            self.speed_x = 2
-            self.speed_y = 0
-        else:
-            self.speed_x = 0
-            self.speed_y = 2
+        self.switch = True
 
-    def update(self):
-
+    def move(self):
         # Changes the position depending on the speed
-        self.pos_x += self.speed_x
-        self.pos_y += self.speed_y
-
-        # Turn around
-        if self.pos_x < self.start_x or self.pos_x > self.dest_x:
-            self.speed_x = -self.speed_x
-
-        if self.pos_y < self.start_y or self.pos_y > self.dest_y:
-            self.speed_y = -self.speed_y
-
-
-        if self.detect == 1:
-            # faces player
-            vector = sub((self.pos_x + X, self.pos_y + Y), CharacterPos)
-            self.rotate = (math.atan2(vector[0], vector[1]) * 57.2958) + 180
-
+        #self.pos_x += self.speed_x
+        #self.pos_y += self.speed_y
+        if self.switch:
+            if self.movetowardspoint((self.dest_x + X, self.dest_y + Y)):
+                 self.switch = False
         else:
-            # Rotates roomba depending on which direction it's going
-            if self.speed_y == 2:
-                self.rotate = 0
-            elif self.speed_y == -2:
-                self.rotate = 180
-            elif self.speed_x == 2:
-                self.rotate = 90
-            elif self.speed_x == -2:
-                self.rotate = 270
+            if self.movetowardspoint((self.start_x + X, self.start_y + Y)):
+                 self.switch = True
 
     def draw(self):
         """Draws the Roomba's, Will draw red roomba if player has been detected"""
@@ -427,9 +404,42 @@ class Roomba:
             self.detect = 1
             return
 
-        # sets to detect to 0 if it hasn't detected anything
+        if self.detect == 1:
+            self.returning = True
+            # sets to detect to 0 if it hasn't detected anything
         self.detect = 0
+        #print self.returning
+        if self.returning:
+            self.returntopos()
+    def chase_player(self):
 
+        self.movetowardspoint(CharacterPos)
+
+    def returntopos(self):
+
+        if self.movetowardspoint((self.start_x+ X, self.start_y + Y)):
+            self.returning = False
+
+    def movetowardspoint(self, point):
+        vector = sub((self.pos_x + X, self.pos_y + Y), point)
+        self.rotate = (math.atan2(vector[0], vector[1]) * 57.2958) + 180
+        if vector[0] == 0:
+            self.speed_x = 0
+        elif vector[0] < 0:
+            self.speed_x = 2
+        else:
+            self.speed_x = -2
+        if vector[1] == 0:
+            self.speed_y = 0
+        elif vector[1] < 0:
+            self.speed_y = 2
+        else:
+            self.speed_y = -2
+
+        self.pos_x += self.speed_x
+        self.pos_y += self.speed_y
+        if (self.pos_x + X, self.pos_y + Y) == point:
+            return True
 
 def rotatePoint(centerPoint, point, angle):
     """Rotates a point around another centerPoint. Angle is in degrees.
@@ -492,16 +502,16 @@ listItems.append(Paint_grenade1)
 
 # Create roombas
 
-Roomba1 = Roomba(0, 0, 200, 90)
+Roomba1 = Roomba(0, 0, 200, 0)
 roombas.append(Roomba1)
 
-Roomba2 = Roomba(600, -400, 500, 90)
+Roomba2 = Roomba(600, -400, 0, 600)
 roombas.append(Roomba2)
 
-Roomba3 = Roomba(200, -200, 300, 0)
+Roomba3 = Roomba(200, -200, 0, 300)
 roombas.append(Roomba3)
 
-Roomba4 = Roomba(500, 800, 300, 0)
+Roomba4 = Roomba(500, 800, 0, 300)
 roombas.append(Roomba4)
 
 # MainLoop
@@ -521,16 +531,18 @@ while Running:
     # Function for shooting the paintballs
     PaintBallDelay = PlayCharacter.shoot_paint_ball(PaintBallDelay)
     GrenadeDelay = PlayCharacter.paint_grenade_throw(GrenadeDelay)
-    #for roomba in roombas:
-        #roomba.update()
-        #roomba.detects()
+    for roomba in roombas:
+        if roomba.returning == False:
+            if roomba.detect == 0:
+                roomba.move()
+            else:
+                roomba.chase_player()
     # Updates the positions on the screen
     screen.fill(White)
     screen.blit(Background, (X, Y))
 
     # Draws the Roombas
     for roomba in roombas:
-        roomba.update()
         roomba.detects()
         roomba.draw()
         roomba.collision()
