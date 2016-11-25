@@ -306,7 +306,6 @@ class Roomba:
         self.dest_x = x_pos + distance_x
         self.dest_y = y_pos + distance_y
 
-        self.start_rotate = 0
         self.rotate = 0
 
         self.detect = 0
@@ -315,14 +314,11 @@ class Roomba:
         self.switch = True
 
     def move(self):
-        # Changes the position depending on the speed
-        #self.pos_x += self.speed_x
-        #self.pos_y += self.speed_y
         if self.switch:
-            if self.movetowardspoint((self.dest_x + X, self.dest_y + Y)):
+            if self.move_towards_point((self.dest_x + X, self.dest_y + Y)):
                  self.switch = False
         else:
-            if self.movetowardspoint((self.start_x + X, self.start_y + Y)):
+            if self.move_towards_point((self.start_x + X, self.start_y + Y)):
                  self.switch = True
 
     def draw(self):
@@ -404,25 +400,34 @@ class Roomba:
             self.detect = 1
             return
 
+        # Sets returning to true so roomba will return to position when not detecting player
         if self.detect == 1:
             self.returning = True
-            # sets to detect to 0 if it hasn't detected anything
+
+        # sets to detect to 0 if it hasn't detected anything
         self.detect = 0
-        #print self.returning
+
+        # calls the returning
         if self.returning:
-            self.returntopos()
+            self.return_to_position()
+
     def chase_player(self):
+        self.move_towards_point(CharacterPos)
 
-        self.movetowardspoint(CharacterPos)
-
-    def returntopos(self):
-
-        if self.movetowardspoint((self.start_x+ X, self.start_y + Y)):
+    def return_to_position(self):
+        if self.move_towards_point((self.start_x+ X, self.start_y + Y)):
             self.returning = False
 
-    def movetowardspoint(self, point):
+    def move_towards_point(self, point):
+        """input a point and roomba will head towards the point and also rotate to look at the point it is heading towards"""
+
+        # Creates a vector for the path the roomba will take
         vector = sub((self.pos_x + X, self.pos_y + Y), point)
+
+        # Rotates the roomba to face the point
         self.rotate = (math.atan2(vector[0], vector[1]) * 57.2958) + 180
+
+        # Moves the roomba
         if vector[0] == 0:
             self.speed_x = 0
         elif vector[0] < 0:
@@ -435,11 +440,14 @@ class Roomba:
             self.speed_y = 2
         else:
             self.speed_y = -2
-
+        # Updates the position of the roomba
         self.pos_x += self.speed_x
         self.pos_y += self.speed_y
+
+        # if roomba has reached point it will return True
         if (self.pos_x + X, self.pos_y + Y) == point:
             return True
+
 
 def rotatePoint(centerPoint, point, angle):
     """Rotates a point around another centerPoint. Angle is in degrees.
