@@ -431,7 +431,6 @@ class Roomba:
 
     def move_towards_point(self, point):
         """input a point and roomba will head towards the point and also rotate to look at the point it is heading towards"""
-
         # Creates a vector for the path the roomba will take
         vector = sub((self.pos_x + X, self.pos_y + Y), point)
 
@@ -451,6 +450,7 @@ class Roomba:
             self.speed_y = 2
         else:
             self.speed_y = -2
+
         # Updates the position of the roomba
         self.pos_x += self.speed_x
         self.pos_y += self.speed_y
@@ -550,6 +550,7 @@ while Running:
     # Function for shooting the paintballs
     PaintBallDelay = PlayCharacter.shoot_paint_ball(PaintBallDelay)
     GrenadeDelay = PlayCharacter.paint_grenade_throw(GrenadeDelay)
+
     for roomba in roombas:
         item_detected = roomba.detects()
         if not roomba.returning:
@@ -569,7 +570,7 @@ while Running:
         roomba.draw()
         roomba.collision()
 
-    # Rotates the Charcter
+    # Rotates the Character
     PlayCharacter.rotate()
     # Updates the Character and the HUD
     PlayCharacter.update()
