@@ -2,7 +2,7 @@
 [Player]: Wh-where am I?
 Scientist: Hello? Can you hear me?
 [Player]: Who are you? Do you know what’s going on?
-Scientist: That can come later for now you need to get out of there!
+Scientist: That can come later, for now you need to get out of there!
 [Player]: Okay, I'll get moving now!
 *Instructions*: Use the W, A, S, D keys to move your Player. Use the mouse to rotate the Player.
 *During Player Movement*[Player]: Can you explain what's going on yet?
@@ -22,10 +22,10 @@ Scientist: I wish that was the case but unfortunately it's not.
 [Player]: Okay, okay. Say I believe you. How exactly am I, one guy, supposed to stop it if billions of people couldn't?
 Scientist: You're not just one guy. There are a number of scientists, including myself, working on a way to stop the roombas.
 [Player]: Okay, so where do I come into this?
-Scientist: It's too dangerous to relay information between us over the internet, they'll find us and kill us so...
+Scientist: It's too dangerous to relay information between us over the internet, they'll find and kill us so...
 [Player]: So you need people like me to run around the city delivering information from scientist to scientist.
 Scientist: Y-yes well, that's, um.
-[Player]: You want me to be a Delivery Boy.
+[Player]: You want me to be a delivery boy.
 Scientist: Yes. But your route is filled with deadly roombas and if you fail humanity will fall.
 [Player]: Oh great, a win win situation, sounds wonderful.
 Scientist: We don't have time for sarcasm, come to my lab at *location*. I'll explain everything when you get here.
@@ -34,8 +34,8 @@ Scientist: We don't have time for sarcasm, come to my lab at *location*. I'll ex
 
 *Act 1*
 *Location*
-Scientist: Good you made it in one piece.
-[Player]: Yeah thanks for your concern. Who are you anyway?
+Scientist: Good, you made it in one piece.
+[Player]: Yeah, thanks for your concern. Who are you anyway?
 Dr. Pearson: I am Doctor Pearson, one of many scientists working to stop the roomba uprising.
 [Player]: Nice to meet you Doc, I'm [Player].
 Dr. Pearson: Good to know, that'll make you easier to find.
