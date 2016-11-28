@@ -17,7 +17,7 @@ CharacterPos = (Width/2, Height/2)
 
 # Used for delay between shooting paintballs and grenades
 PaintBallDelay = 0
-GrenadeDelay = 0
+ProjectileDelay = 0
 
 # For the character movement and map tracking
 Y = 0
@@ -75,7 +75,7 @@ class CharacterClass:
         # Item counters
         self.paint_ball_ammo = 9
         self.paint_grenade = 5
-        self.rubbish = 0
+        self.rubbish = 4
 
         # Paintball properties
         self.ball_position = (self.pos_x, self.pos_y)
@@ -83,11 +83,22 @@ class CharacterClass:
         self.ball_speed = (0, 0)
         self.ball_colour = Red
 
+        # Projectile properties
+        self.projectile_spawn = False
+        self.projectile_position = (self.pos_x, self.pos_y)
+        self.projectile_speed = (0, 0)
+        self.projectile_timer = 0
+        self.projectile_type = ""
+
         # Paint Grenade properties
         self.grenade_position = (self.pos_x, self.pos_y)
         self.grenade_spawn = False
         self.grenade_speed = (0, 0)
         self.grenade_timer = 0
+
+        # Rubbish properties
+        self.rubbish_position = (self.pos_x, self.pos_y)
+        self.rubbish_speed = (0, 0)
 
     def rotate(self):
         """Rotates the player to follow the mouse"""
@@ -99,12 +110,12 @@ class CharacterClass:
     def update(self):
         if self.ball_spawn:
             # Updates the position of the ball
-            self.ball_position = (self.ball_position[0] +  self.ball_speed[0]), (self.ball_position[1] + self.ball_speed[1])
+            self.ball_position = (self.ball_position[0] + self.ball_speed[0]), (self.ball_position[1] + self.ball_speed[1])
             self.paintball_hit()
 
-        if self.grenade_spawn:
-            # Updates the position of the grenade
-            self.grenade_position = (self.grenade_position[0] + self.grenade_speed[0]), (self.grenade_position[1] + self.grenade_speed[1])
+        if self.projectile_spawn:
+            # Updates the position of the projectile
+            self.projectile_position = (self.projectile_position[0] + self.projectile_speed[0]), (self.projectile_position[1] + self.projectile_speed[1])
 
         # Draws the character
         character_rotation = pygame.transform.rotate(CharacterModel, self.rotation)
@@ -125,13 +136,23 @@ class CharacterClass:
         if self.ball_spawn:
             pygame.draw.circle(screen, self.ball_colour, self.ball_position, 5)
 
-        if self.grenade_spawn:
-            # Paint grenades will last for 700 ticks before disapearing
-            if pygame.time.get_ticks() - 700 > self.grenade_timer:
-                self.grenade_spawn = False
-                self.grenade_explosion()
+        if self.projectile_spawn:
+
+            if self.projectile_type == "PaintGrenade":
+                # Paint grenades will last for 700 ticks before disapearing
+                if pygame.time.get_ticks() - 700 > self.projectile_timer:
+                    self.projectile_spawn = False
+                    self.grenade_explosion()
                 # Draws paint grenade
-            pygame.draw.circle(screen, Red, self.grenade_position, 15)
+                pygame.draw.circle(screen, Red, self.projectile_position, 15)
+
+            if self.projectile_type == "Rubbish":
+                # Rubbish will travel for 700 ticks before dropping to the fllor
+                if pygame.time.get_ticks() - 700 > self.projectile_timer:
+                    self.projectile_spawn = False
+                    self.item_drop()
+                # Draws Rubbish
+                screen.blit(BananaPeel, self.projectile_position)
 
         # Draws the HUD
         pygame.draw.rect(screen, Black, rect)
@@ -162,24 +183,24 @@ class CharacterClass:
     def player_movement(self, x, y):
         """Player movement, returns an X and Y value"""
         # Checks what keys are being pressed
-        pressed = pygame.key.get_pressed()
+        key_pressed = pygame.key.get_pressed()
 
         # Direction character is moving in
-        if pressed[pygame.K_w] and wall_check("up"):
+        if key_pressed[pygame.K_w] and wall_check("up"):
             y += CharacterSpeed
-        if pressed[pygame.K_s] and wall_check("down"):
+        if key_pressed[pygame.K_s] and wall_check("down"):
             y -= CharacterSpeed
-        if pressed[pygame.K_a] and wall_check("left"):
+        if key_pressed[pygame.K_a] and wall_check("left"):
             x += CharacterSpeed
-        if pressed[pygame.K_d] and wall_check("right"):
+        if key_pressed[pygame.K_d] and wall_check("right"):
             x -= CharacterSpeed
 
         return x, y
 
-    def shoot_paint_ball(self, PaintBallDelay):
+    def shoot_paint_ball(self, paint_ball_delay):
         """Shoots the paintball gun"""
         mouse_press = pygame.mouse.get_pressed()[0]
-        if not pygame.time.get_ticks() - 500 < PaintBallDelay:
+        if not pygame.time.get_ticks() - 500 < paint_ball_delay:
             if mouse_press == 1:
                 if self.paint_ball_ammo > 0:
                     # Decreases the ammo count
@@ -205,9 +226,9 @@ class CharacterClass:
                     # Generates the ball speed as a result
                     self.ball_speed = (int(vector[0]), (int(vector[1])))
 
-                    PaintBallDelay = pygame.time.get_ticks()
+                    paint_ball_delay = pygame.time.get_ticks()
 
-        return PaintBallDelay
+        return paint_ball_delay
 
     def paintball_hit(self):
         """Checks if paintball comes into contact with a Roomba"""
@@ -216,49 +237,52 @@ class CharacterClass:
                 if roomba.pos_y + Y < self.ball_position[1] < roomba.pos_y + Y + 64:
                     print "hit"
 
-    def paint_grenade_throw(self, GrenadeDelay):
-        """Code for throwing paint grenades"""
-        pressed = pygame.key.get_pressed()
-        if pressed[pygame.K_SPACE] and self.paint_grenade > 0 and self.grenade_spawn is False:
-            if not pygame.time.get_ticks() - 1000 < GrenadeDelay:
-                    # Decreases the grenade count
-                    self.paint_grenade -= 1
-                    self.grenade_spawn = True
+    def throw_projectile(self, projectile, projectile_delay, projectile_type):
+        """Code for throwing projectiles"""
+        if not pygame.time.get_ticks() - 1000 < projectile_delay:
+            # Decreases the grenade count
+            projectile -= 1
+            self.projectile_spawn = True
+            self.projectile_type = projectile_type
 
-                    # Gets the initial position of the grenade
-                    self.grenade_position = (self.pos_x, self.pos_y)
+            # Gets the initial position of the projectiles
+            self.projectile_position = (self.pos_x, self.pos_y)
 
-                    # Creates a vector
-                    mouse_x, mouse_y = pygame.mouse.get_pos()
-                    vector = sub((mouse_x, mouse_y), self.grenade_position)
+            # Creates a vector
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+            vector = sub((mouse_x, mouse_y), self.projectile_position)
 
-                    # Gets the sum of the vector and divides by 10 (increases the speed)
-                    vector_total = ((math.sqrt(vector[0] ** 2)) + (math.sqrt(vector[1] ** 2))) / 10
+            # Gets the sum of the vector and divides by 10 (increases the speed)
+            vector_total = ((math.sqrt(vector[0] ** 2)) + (math.sqrt(vector[1] ** 2))) / 10
 
-                    # Divides the vector by this new vector
-                    vector = (vector[0] / vector_total), (vector[1] / vector_total)
+            # Divides the vector by this new vector
+            vector = (vector[0] / vector_total), (vector[1] / vector_total)
 
-                    # Generates the ball speed as a result
-                    self.grenade_speed = (int(vector[0]), (int(vector[1])))
+            # Generates the projectile speed as a result
+            self.projectile_speed = (int(vector[0]), (int(vector[1])))
 
-                    GrenadeDelay = pygame.time.get_ticks()
+            projectile_delay = pygame.time.get_ticks()
 
-                    # takes the current tick so it can explode after 700 more ticks
-                    self.grenade_timer = pygame.time.get_ticks()
-
-        return GrenadeDelay
+            # takes the current tick so it can explode/drop after 700 more ticks
+            self.projectile_timer = pygame.time.get_ticks()
+        return projectile, projectile_delay
 
     def grenade_explosion(self):
         """The explosion of the grenade"""
         # draws a rectangle for the blast radius
-        GrenadeExplosion = (self.grenade_position[0] - 200, self.grenade_position[1] - 200, 400, 400)
-        pygame.draw.rect(screen, Yellow, GrenadeExplosion)
+        explosion = (self.projectile_position[0] - 200, self.projectile_position[1] - 200, 400, 400)
+        pygame.draw.rect(screen, Yellow, explosion)
         # checks for roombas caught in the explosion
         for roomba in roombas:
-            if roomba.pos_x + X - 200 < self.grenade_position[0]< roomba.pos_x + X + 200:
-                if roomba.pos_y + Y - 200 < self.grenade_position[1] < roomba.pos_y + Y + 200:
+            if roomba.pos_x + X - 200 < self.projectile_position[0] < roomba.pos_x + X + 200:
+                if roomba.pos_y + Y - 200 < self.projectile_position[1] < roomba.pos_y + Y + 200:
                     print "Ka-boom!"
                     roombas.remove(roomba)
+
+    def item_drop(self):
+        # Creates a new rubbish item
+        rubbish = Items(self.projectile_position[0] - X, self.projectile_position[1] - Y, 1)
+        listItems.append(rubbish)
 
 
 class Items:
@@ -293,11 +317,10 @@ class Items:
 
     def roomba_collision(self, roomba):
         """detects collision with roombas"""
-        if roomba.pos_x - 64  + X < X + self.pos_x < roomba.pos_x + 64 + X:
+        if roomba.pos_x - 64 + X < X + self.pos_x < roomba.pos_x + 64 + X:
             if roomba.pos_y - 64 + Y < Y + self.pos_y < roomba.pos_y + 64 + Y:
                 # Removes the item from the list
                 listItems.remove(self)
-
 
 
 class Roomba:
@@ -549,7 +572,13 @@ while Running:
 
     # Function for shooting the paintballs
     PaintBallDelay = PlayCharacter.shoot_paint_ball(PaintBallDelay)
-    GrenadeDelay = PlayCharacter.paint_grenade_throw(GrenadeDelay)
+
+    # Functions for throwing projectiles
+    pressed = pygame.key.get_pressed()
+    if pressed[pygame.K_SPACE] and PlayCharacter.paint_grenade > 0 and PlayCharacter.projectile_spawn is False:
+        PlayCharacter.paint_grenade, ProjectileDelay = PlayCharacter.throw_projectile(PlayCharacter.paint_grenade, ProjectileDelay, "PaintGrenade")
+    if pressed[pygame.K_r] and PlayCharacter.rubbish > 0 and PlayCharacter.projectile_spawn is False:
+        PlayCharacter.rubbish, ProjectileDelay = PlayCharacter.throw_projectile(PlayCharacter.rubbish, ProjectileDelay, "Rubbish")
 
     for roomba in roombas:
         item_detected = roomba.detects()
