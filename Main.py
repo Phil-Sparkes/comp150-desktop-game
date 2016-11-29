@@ -47,8 +47,10 @@ CharacterModel = pygame.image.load("character2.png")
 RoombaModel = pygame.image.load("Art-assets/Enemies/Roomba (passive).png")
 RoombaModelHostile = pygame.image.load("Art-assets/Enemies/Roomba (hostile).png")
 RubbishArt = pygame.image.load("Art-assets/Rubbish.png")
-PaintballAmmo = pygame.image.load("Art-assets/Ammo.png")
-PaintGrenade = pygame.image.load("Art-assets/Grenade.png")
+PaintballAmmoIcon = pygame.image.load("Art-assets/Paintgun-ammo/AmmoIcon.png")
+PaintballAmmo = pygame.image.load("Art-assets/Paintgun-ammo/Ammo.png")
+PaintGrenadeIcon = pygame.image.load("Art-assets/Grenade/Icon.png")
+PaintGrenade = pygame.image.load("Art-assets/Grenade/Grenade.png")
 
 BananaPeel = pygame.image.load("Art-assets/Rubbish\Banana peel.png")
 BeerBottle = pygame.image.load("Art-assets/Rubbish/Beer bottle.png")
@@ -73,9 +75,9 @@ class CharacterClass:
         self.rotation = 0
 
         # Item counters
-        self.paint_ball_ammo = 99
-        self.paint_grenade = 99
-        self.rubbish = 4
+        self.paint_ball_ammo = 999
+        self.paint_grenade = 999
+        self.rubbish = 999
 
         # Paintball properties
         self.ball_position = (self.pos_x, self.pos_y)
@@ -99,6 +101,9 @@ class CharacterClass:
         # Rubbish properties
         self.rubbish_position = (self.pos_x, self.pos_y)
         self.rubbish_speed = (0, 0)
+
+        self.rubbish_types = (BananaPeel, BeerBottle, WaterBottle, RustyCan)
+        self.random_rubbish = (random.choice(self.rubbish_types))
 
     def rotate(self):
         """Rotates the player to follow the mouse"""
@@ -156,15 +161,18 @@ class CharacterClass:
                     self.projectile_spawn = False
                     self.grenade_explosion()
                 # Draws paint grenade
-                pygame.draw.circle(screen, Red, self.projectile_position, 15)
+                screen.blit(PaintGrenade, self.projectile_position)
 
             if self.projectile_type == "Rubbish":
-                # Rubbish will travel for 700 ticks before dropping to the fllor
+                # Rubbish will travel for 700 ticks before dropping to the floor
+
                 if pygame.time.get_ticks() - 700 > self.projectile_timer:
+
                     self.projectile_spawn = False
                     self.item_drop()
+                    self.random_rubbish = (random.choice(self.rubbish_types))
                 # Draws Rubbish
-                screen.blit(BananaPeel, self.projectile_position)
+                screen.blit(self.random_rubbish, self.projectile_position)
 
         # Draws the HUD
         pygame.draw.rect(screen, Black, rect)
@@ -188,9 +196,9 @@ class CharacterClass:
         screen.blit(fontimg3, (180, 650))
 
         # Draw the icons
-        screen.blit(PaintballAmmo, (3, 580))
+        screen.blit(PaintballAmmoIcon, (3, 580))
         screen.blit(GarbageCan, (83, 580))
-        screen.blit(PaintGrenade, (163, 580))
+        screen.blit(PaintGrenadeIcon, (163, 580))
 
     def player_movement(self, x, y):
         """Player movement, returns an X and Y value"""
@@ -293,8 +301,10 @@ class CharacterClass:
 
     def item_drop(self):
         # Creates a new rubbish item
-        rubbish = Items(self.projectile_position[0] - X, self.projectile_position[1] - Y, 1)
+
+        rubbish = Items(self.projectile_position[0] - X, self.projectile_position[1] - Y, 1, self.random_rubbish)
         listItems.append(rubbish)
+
 
     def collision_items(self, item_speed, item_pos,):
         """Checks if items (paintballs, grenades and rubbish) are colliding with walls"""
@@ -312,22 +322,26 @@ class CharacterClass:
                 return False
 
         return True
+
+
 class Items:
     """Class for the items"""
-    def __init__(self, xpos, ypos, itemkind):
+    def __init__(self, xpos, ypos, item_kind, rubbish_type):
         self.pos_x = xpos
         self.pos_y = ypos
-        self.item = itemkind
+        self.item = item_kind
         self.detected = False
+        self.rubbish_type = rubbish_type
 
         # selects a random rubbish item
         rubbish_types = (BananaPeel, BeerBottle, WaterBottle, RustyCan)
-        self.random_rubbish = (random.choice(rubbish_types))
+        if self.rubbish_type == "":
+            self.rubbish_type = (random.choice(rubbish_types))
 
     def draw(self):
         """draws the items on the screen"""
         if self.item == 1:
-            screen.blit(self.random_rubbish, (X + self.pos_x, Y + self.pos_y))
+            screen.blit(self.rubbish_type, (X + self.pos_x, Y + self.pos_y))
         if self.item == 0:
             screen.blit(PaintballAmmo, (X + self.pos_x, Y + self.pos_y))
         if self.item == 2:
@@ -397,9 +411,7 @@ class Roomba:
         if CharacterPos[0] - 50 < X + self.pos_x + 47 < CharacterPos[0] + 50:
             if CharacterPos[1] - 50 < Y + self.pos_y + 47 < CharacterPos[1] + 50:
                 print "game over"
-                #pygame.quit()
-                #sys.exit()
-
+                execfile("Game over screen.py")
 
     def detects(self):
         """Checks if roomba detects player or items"""
@@ -465,8 +477,6 @@ class Roomba:
 
         # sets to detect to 0 if it hasn't detected anything
         self.detect = 0
-
-
 
     def chase_player(self):
         self.move_towards_point(CharacterPos)
@@ -587,51 +597,26 @@ listItems = []
 PlayCharacter = CharacterClass()
 
 # Create items
-Paintball_ammo1 = Items(800, 600, 0)
+Paintball_ammo1 = Items(800, 600, 0, "")
 listItems.append(Paintball_ammo1)
 
-Paintball_ammo2 = Items(800, 500, 0)
+Paintball_ammo2 = Items(800, 500, 0, "")
 listItems.append(Paintball_ammo2)
 
 
-Paint_grenade1 = Items(900, 600, 2)
+Paint_grenade1 = Items(900, 600, 2, "")
 listItems.append(Paint_grenade1)
 
 # Create roombas
-"""
-Roomba1 = Roomba(0, 0, 200, 0)
-roombas.append(Roomba1)
 
-Roomba2 = Roomba(600, -400, 0, 600)
-roombas.append(Roomba2)
-
-Roomba3 = Roomba(200, -200, 0, 300)
-roombas.append(Roomba3)
-
-Roomba4 = Roomba(-500, -800, 0, 300)
-roombas.append(Roomba4)
-
-Roomba5 = Roomba(300, 800, 200, 0)
-roombas.append(Roomba5)
-
-Roomba6 = Roomba(600, 400, 0, 600)
-roombas.append(Roomba6)ad
-
-Roomba7 = Roomba(1000, 1200, 0, 300)
-roombas.append(Roomba7)
-
-Roomba8 = Roomba(200, 800, 0, 300)
-roombas.append(Roomba8)
-
-"""
-for roomba in range(50):
+for roomba in range(10):
     RoombaXSpawn = random.randint(0, 200)
     RoombaYSpawn = random.randint(0, 200)
 
     RoombaXSpawn *= 10
     RoombaYSpawn *= 10
 
-    if random.randint(0,1) == 1:
+    if random.randint(0, 1) == 1:
         RoombaXDistance = 0
         RoombaYDistance = random.randint(20, 50)
     else:
