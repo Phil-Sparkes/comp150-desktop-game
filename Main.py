@@ -116,7 +116,8 @@ class CharacterClass:
     def update(self):
         if self.ball_spawn:
             # Updates the position of the ball
-            self.ball_position = (self.ball_position[0] + self.ball_speed[0]), (self.ball_position[1] + self.ball_speed[1])
+            self.ball_position = (self.ball_position[0] + self.ball_speed[0]),\
+                                 (self.ball_position[1] + self.ball_speed[1])
             self.paintball_hit()
 
             # Checks if collision with wall
@@ -125,7 +126,8 @@ class CharacterClass:
 
         if self.projectile_spawn:
             # Updates the position of the projectile
-            self.projectile_position = (self.projectile_position[0] + self.projectile_speed[0]), (self.projectile_position[1] + self.projectile_speed[1])
+            self.projectile_position = (self.projectile_position[0] + self.projectile_speed[0]),\
+                                       (self.projectile_position[1] + self.projectile_speed[1])
 
             # Checks if collision with wall
             if not self.collision_items(self.projectile_speed, self.projectile_position):
@@ -492,7 +494,9 @@ class Roomba:
             self.returning = False
 
     def move_towards_point(self, point):
-        """input a point and roomba will head towards the point and also rotate to look at the point it is heading towards"""
+        """input a point and roomba will head towards the point
+         will also rotate to look at the point it is heading towards
+         """
         # Creates a vector for the path the roomba will take
         vector = sub((self.pos_x + X, self.pos_y + Y), point)
 
@@ -556,7 +560,8 @@ def rotate_point(center_point, point, angle):
     Rotation is counter-clockwise"""
     angle = math.radians(angle)
     temp_point = point[0] - center_point[0], point[1] - center_point[1]
-    temp_point = (temp_point[0] * math.cos(angle) - temp_point[1] * math.sin(angle), temp_point[0] * math.sin(angle) + temp_point[1] * math.cos(angle))
+    temp_point = (temp_point[0] * math.cos(angle) - temp_point[1] * math.sin(angle),
+                  temp_point[0] * math.sin(angle) + temp_point[1] * math.cos(angle))
     temp_point = temp_point[0] + center_point[0], temp_point[1] + center_point[1]
     return temp_point
     # http://stackoverflow.com/questions/20023209/function-for-rotating-2d-objects
@@ -590,6 +595,10 @@ def wall_check(direction, position_x, position_y):
 def sub(u, v):
     """Function for finding the vector"""
     return [u[i]-v[i] for i in range(len(u))]
+    # http://stackoverflow.com/questions/33172753/how-to-have-an-object-run-directly-away-from-mouse-at-a-constant-speed/33173194#33173194
+
+# Create character
+PlayCharacter = CharacterClass()
 
 # List of Roomba's
 roombas = []
@@ -597,50 +606,25 @@ roombas = []
 # List of Items
 listItems = []
 
-# Create character
-PlayCharacter = CharacterClass()
+# Item properties (x coord, y coord, item type, used for throwing rubbish)
+ItemSpawn = [(800, 600, 0, ""), (800, 500, 0, ""), (900, 600, 2, "")]
 
-# Create items
-Paintball_ammo1 = Items(800, 600, 0, "")
-listItems.append(Paintball_ammo1)
-
-Paintball_ammo2 = Items(800, 500, 0, "")
-listItems.append(Paintball_ammo2)
-
-Paint_grenade1 = Items(900, 600, 2, "")
-listItems.append(Paint_grenade1)
+# Roomba Start points and end points (Start point x, Start point y, Travel distance x, Travel distance y)
+RoombaSpawn = [(1220, -810, 0, 450), (1320, -840, 0, 500), (1400, -870, 0, 550),
+               (1480, -900, 0, 600), (-205, -825, 0, 400), (-45, -480, 0, -400),
+               (350, -945, 600, 0), (1000, -1350, 250, 0), (5, -1530, 250, 0),
+               (250, -1385, -250, 0), (5, -1290, 250, 0), (250, -1170, -250, 0)]
 
 # Create roombas
-RoombaStart_x = [1220, 1320, 1400, 1480, -205, -45, 350, 1000, 5, 250, 5, 250]
-RoombaStart_y = [-810, -840, -870, -900, -825, -480, -945, -1350, -1530, -1385, -1290, -1170]
-RoombaDest_x = [0, 0, 0, 0, 0, 0, 600, 250, 250, -250, 250, -250]
-RoombaDest_y = [450, 500, 550, 600, 400, -400, 0, 0, 0, 0, 0, 0]
-
-for x in xrange(len(RoombaStart_x)):
-    roomba = Roomba(RoombaStart_x[x],RoombaStart_y[x], RoombaDest_x[x], RoombaDest_y[x])
+for value in RoombaSpawn:
+    roomba = Roomba(value[0], value[1], value[2], value[3])
     roombas.append(roomba)
 
-"""
-for roomba in range(10):
-    RoombaXSpawn = random.randint(0, 200)
-    RoombaYSpawn = random.randint(0, 200)
+# Create items
+for value in ItemSpawn:
+    item = Items(value[0], value[1], value[2], value[3])
+    listItems.append(item)
 
-    RoombaXSpawn *= 10
-    RoombaYSpawn *= 10
-
-    if random.randint(0, 1) == 1:
-        RoombaXDistance = 0
-        RoombaYDistance = random.randint(20, 50)
-    else:
-        RoombaXDistance = random.randint(20, 50)
-        RoombaYDistance = 0
-
-    RoombaYDistance *= 10
-    RoombaXDistance *= 10
-
-    roomba = Roomba(RoombaXSpawn, RoombaYSpawn, RoombaXDistance, RoombaYDistance)
-    roombas.append(roomba)
-"""
 
 # MainLoop
 while Running:
@@ -673,7 +657,7 @@ while Running:
     # Draws the background
     screen.fill(White)
     screen.blit(Background, (X - 1800, Y - 4200))
-    print -X + 640, -Y + 320
+    #print -X + 640, -Y + 320
     # Moves the Roombas
     for roomba in roombas:
 
@@ -694,10 +678,8 @@ while Running:
     PlayCharacter.rotate()
     # Updates the Character and the HUD
     PlayCharacter.update()
-
     # Updates the display
     pygame.display.flip()
-
 
 # When Running is not true it will quit
 pygame.quit()
