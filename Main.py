@@ -32,6 +32,7 @@ Green = (0, 255, 0)
 Blue = (0, 0, 255)
 Yellow = (255, 255, 0)
 Black = (0, 0, 0)
+CollisionColour = (83, 11, 2)
 
 # Rectangles
 rect = (0, 650, 70, 70)
@@ -42,11 +43,11 @@ rect3 = (160, 650, 70, 70)
 TextFont = pygame.font.SysFont("impact", 60)
 
 # Importing the art
-Background = pygame.image.load("maptest.png")
+BackgroundSmall = pygame.image.load("map.png")
+Background = pygame.transform.scale(BackgroundSmall, (5000,5000))
 CharacterModel = pygame.image.load("character2.png")
 RoombaModel = pygame.image.load("Art-assets/Enemies/Roomba (passive).png")
 RoombaModelHostile = pygame.image.load("Art-assets/Enemies/Roomba (hostile).png")
-RubbishArt = pygame.image.load("Art-assets/Rubbish.png")
 PaintballAmmoIcon = pygame.image.load("Art-assets/Paintgun-ammo/AmmoIcon.png")
 PaintballAmmo = pygame.image.load("Art-assets/Paintgun-ammo/Ammo.png")
 PaintGrenadeIcon = pygame.image.load("Art-assets/Grenade/Icon.png")
@@ -305,7 +306,6 @@ class CharacterClass:
         rubbish = Items(self.projectile_position[0] - X, self.projectile_position[1] - Y, 1, self.random_rubbish)
         listItems.append(rubbish)
 
-
     def collision_items(self, item_speed, item_pos,):
         """Checks if items (paintballs, grenades and rubbish) are colliding with walls"""
         if item_speed[0] > 0:
@@ -533,6 +533,10 @@ class Roomba:
         else:
             self.speed_y = -2
 
+        if self.detect == 1:
+            self.speed_y *= 2
+            self.speed_x *= 2
+
         # If wall sometimes stops roomba from moving
         if not can_move:
             self.speed_x = 0
@@ -561,22 +565,22 @@ def rotate_point(center_point, point, angle):
 def wall_check(direction, position_x, position_y):
     """Checks if wall in direction player is going, False if wall, True if not"""
     try:
-        check_distance = 40
+        check_distance = 45
         if direction == "up":
             colour = screen.get_at((position_x, position_y - check_distance))
-            if colour == (0, 0, 0, 255):
+            if colour == CollisionColour:
                 return False
         if direction == "down":
             colour = screen.get_at((position_x, position_y + check_distance))
-            if colour == (0, 0, 0, 255):
+            if colour == CollisionColour:
                 return False
         if direction == "left":
             colour = screen.get_at((position_x - check_distance, position_y))
-            if colour == (0, 0, 0, 255):
+            if colour == CollisionColour:
                 return False
         if direction == "right":
             colour = screen.get_at((position_x + check_distance, position_y))
-            if colour == (0, 0, 0, 255):
+            if colour == CollisionColour:
                 return False
         return True
     except:
@@ -603,12 +607,20 @@ listItems.append(Paintball_ammo1)
 Paintball_ammo2 = Items(800, 500, 0, "")
 listItems.append(Paintball_ammo2)
 
-
 Paint_grenade1 = Items(900, 600, 2, "")
 listItems.append(Paint_grenade1)
 
 # Create roombas
+RoombaStart_x = [1220, 1320, 1400, 1480, -205, -45, 350, 1000, 5, 250, 5, 250]
+RoombaStart_y = [-810, -840, -870, -900, -825, -480, -945, -1350, -1530, -1385, -1290, -1170]
+RoombaDest_x = [0, 0, 0, 0, 0, 0, 600, 250, 250, -250, 250, -250]
+RoombaDest_y = [450, 500, 550, 600, 400, -400, 0, 0, 0, 0, 0, 0]
 
+for x in xrange(len(RoombaStart_x)):
+    roomba = Roomba(RoombaStart_x[x],RoombaStart_y[x], RoombaDest_x[x], RoombaDest_y[x])
+    roombas.append(roomba)
+
+"""
 for roomba in range(10):
     RoombaXSpawn = random.randint(0, 200)
     RoombaYSpawn = random.randint(0, 200)
@@ -628,6 +640,7 @@ for roomba in range(10):
 
     roomba = Roomba(RoombaXSpawn, RoombaYSpawn, RoombaXDistance, RoombaYDistance)
     roombas.append(roomba)
+"""
 
 # MainLoop
 while Running:
@@ -659,8 +672,8 @@ while Running:
 
     # Draws the background
     screen.fill(White)
-    screen.blit(Background, (X, Y))
-
+    screen.blit(Background, (X - 1800, Y - 4200))
+    print -X + 640, -Y + 320
     # Moves the Roombas
     for roomba in roombas:
 
