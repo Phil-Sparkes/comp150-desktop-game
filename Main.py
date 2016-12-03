@@ -23,7 +23,7 @@ ProjectileDelay = 0
 Y = 0
 X = 0
 
-CharacterSpeed = 15
+CharacterSpeed = 5
 
 # Defining colours for later use
 White = (255, 255, 255)
@@ -32,20 +32,18 @@ Green = (0, 255, 0)
 Blue = (0, 0, 255)
 Yellow = (255, 255, 0)
 Black = (0, 0, 0)
-CollisionColour = (82, 10, 1)
+CollisionColour = (81, 10, 1)
 
 # Rectangles
-rect = (0, 650, 70, 70)
-rect2 = (80, 650, 70, 70)
-rect3 = (160, 650, 70, 70)
+HudBox = [(0, 650, 70, 70), (80, 650, 70, 70), (160, 650, 70, 70)]
 
 # Font
 TextFont = pygame.font.SysFont("impact", 60)
 
 # Importing the art
-BackgroundSmall = pygame.image.load("map2.png")
-Background = pygame.transform.scale(BackgroundSmall, (5000,5000))
-CharacterModel = pygame.image.load("character2.png")
+BackgroundLarge = pygame.image.load("Art-assets/Map.png")
+Background = pygame.transform.scale(BackgroundLarge, (5000,5000))
+CharacterModel = pygame.image.load("Art-assets/Characters/Character.png")
 ScientistModel = pygame.image.load("Art-assets/Characters/Scientist.png")
 RoombaModel = pygame.image.load("Art-assets/Enemies/Roomba (passive).png")
 RoombaModelHostile = pygame.image.load("Art-assets/Enemies/Roomba (hostile).png")
@@ -58,7 +56,6 @@ BananaPeel = pygame.image.load("Art-assets/Rubbish\Banana peel.png")
 BeerBottle = pygame.image.load("Art-assets/Rubbish/Beer bottle.png")
 WaterBottle = pygame.image.load("Art-assets/Rubbish/Bottle.png")
 GarbageCan = pygame.image.load("Art-assets/Rubbish/Garbage can.png")
-#GarbageCanOpen = pygame.image.load("Art-assests/character2.png")
 RustyCan = pygame.image.load("Art-assets/Rubbish/Rusty Can.png")
 
 # Draws the screen
@@ -78,8 +75,8 @@ class CharacterClass:
         self.rotation = 0
 
         # Item counters
-        self.paint_ball_ammo = 10
-        self.paint_grenade = 0
+        self.paint_ball_ammo = 9
+        self.paint_grenade = 1
         self.rubbish = 0
 
         # Paintball properties
@@ -181,15 +178,10 @@ class CharacterClass:
                 # Draws Rubbish
                 screen.blit(self.random_rubbish, self.projectile_position)
 
-        # Draws the HUD
-        pygame.draw.rect(screen, Black, rect)
-        pygame.draw.rect(screen, Black, rect2)
-        pygame.draw.rect(screen, Black, rect3)
-
         # Updates the text
-        fontimg = TextFont.render(str(self.paint_ball_ammo), 1, Yellow)
-        fontimg2 = TextFont.render(str(self.rubbish), 1, Yellow)
-        fontimg3 = TextFont.render(str(self.paint_grenade), 1, Yellow)
+        hud_text = [(TextFont.render(str(self.paint_ball_ammo), 1, Yellow)),
+                    (TextFont.render(str(self.rubbish), 1, Yellow)),
+                    (TextFont.render(str(self.paint_grenade), 1, Yellow))]
 
         # centers the text
         if self.paint_ball_ammo > 9:
@@ -197,10 +189,14 @@ class CharacterClass:
         else:
             font_center = 20
 
+        # Draws the HUD
+        for x in xrange(len(HudBox)):
+            pygame.draw.rect(screen, Black, HudBox[x])
+
         # Draw the text
-        screen.blit(fontimg, (font_center, 650))
-        screen.blit(fontimg2, (100, 650))
-        screen.blit(fontimg3, (180, 650))
+        screen.blit(hud_text[0], (font_center, 650))
+        screen.blit(hud_text[1], (100, 650))
+        screen.blit(hud_text[2], (180, 650))
 
         # Draw the icons
         screen.blit(PaintballAmmoIcon, (3, 580))
@@ -243,6 +239,13 @@ class CharacterClass:
                     # Creates a vector
                     mouse_x, mouse_y = pygame.mouse.get_pos()
                     vector = sub((mouse_x, mouse_y), self.ball_position)
+
+                    """
+                    red1 = screen.get_at((mouse_x, mouse_y)).r
+                    green1 = screen.get_at((mouse_x, mouse_y)).g
+                    blue1 = screen.get_at((mouse_x, mouse_y)).b
+                    print red1, green1, blue1
+                    """
 
                     # Gets the sum of the vector and divides by 20 (increases the speed)
                     vector_total = ((math.sqrt(vector[0] ** 2)) + (math.sqrt(vector[1] ** 2))) / 20
@@ -425,7 +428,7 @@ class Roomba:
         if CharacterPos[0] - 50 < X + self.pos_x + 47 < CharacterPos[0] + 50:
             if CharacterPos[1] - 50 < Y + self.pos_y + 47 < CharacterPos[1] + 50:
                 print "game over"
-                #execfile("Game over screen.py")
+                execfile("Game over screen.py")
 
     def detects(self):
         """Checks if roomba detects player or items"""
@@ -438,25 +441,18 @@ class Roomba:
         vector_y += Height/2
 
         # Creates the four points for the roomba cone of view
-        point1 = (vector_x - 20, vector_y)
-        point2 = (vector_x + 20, vector_y)
-        point3 = (vector_x + 150, vector_y + 300)
-        point4 = (vector_x - 150, vector_y + 300)
+        points = [(vector_x - 20, vector_y), (vector_x + 20, vector_y),
+                  (vector_x + 150, vector_y + 300), (vector_x - 150, vector_y + 300)]
 
-        # Rotates the points for the cone of view
-        point1 = rotate_point((self.pos_x + X, self.pos_y + Y), point1, -self.rotate)
-        point2 = rotate_point((self.pos_x + X, self.pos_y + Y), point2, -self.rotate)
-        point3 = rotate_point((self.pos_x + X, self.pos_y + Y), point3, -self.rotate)
-        point4 = rotate_point((self.pos_x + X, self.pos_y + Y), point4, -self.rotate)
-
-        # moves the cone of view so its centered on the roomba
-        point1 = (int(point1[0]) + 32, int(point1[1]) + 32)
-        point2 = (int(point2[0]) + 32, int(point2[1]) + 32)
-        point3 = (int(point3[0]) + 32, int(point3[1]) + 32)
-        point4 = (int(point4[0]) + 32, int(point4[1]) + 32)
+        for j in xrange(len(points)):
+            # Rotates the points for the cone of view
+            points[j] = rotate_point((self.pos_x + X, self.pos_y + Y), points[j], -self.rotate)
+            # moves the cone of view so its centered on the roomba
+            points[j] = (int(points[j][0]) + 32, int(points[j][1]) + 32)
 
         # Creates a polygon out of the points
-        area = point1, point2, point3, point4
+        area = points[0], points[1], points[2], points[3]
+
         # Draws the polygon in red
         pygame.draw.polygon(screen, Red, area)
         # Gets the colour of the pixel at the character position
@@ -518,7 +514,7 @@ class Roomba:
         # sets moving to true
         can_move = True
 
-        # attempts to stop the roombas passing through walls"
+        # stop the roombas passing through walls"
         if self.rotate < 45:
             if not wall_check("down", self.pos_x + X + 32, self.pos_y + Y + 32):
                 can_move = False
@@ -612,10 +608,10 @@ def sub(u, v):
 
 def draw_scientist():
     """Rotates the Scientist to face the point"""
-    vector = sub((X + 540, Y - 1250), CharacterPos)
+    vector = sub((X + 800, Y - 1250), CharacterPos)
     rotate = (math.atan2(vector[0], vector[1]) * 57.2958)
     scientist_rotate = pygame.transform.rotate(ScientistModel, rotate)
-    screen.blit(scientist_rotate, (X + 640, Y - 1350))
+    screen.blit(scientist_rotate, (X + 800, Y - 1250))
 
 # Create character
 PlayCharacter = CharacterClass()
@@ -627,7 +623,9 @@ roombas = []
 listItems = []
 
 # Item properties (x coord, y coord, item type, used for throwing rubbish) (0 = AMMO, 2 = GRENADE, 3 = RUBBISH)
-ItemSpawn = [(860, 150, 3, ""), (380, 150, 3, ""), (750, -1885, 3, "")]
+ItemSpawn = [(860, 150, 3, ""), (380, 150, 3, ""), (750, -1885, 3, ""),
+             (730, -1420, 0, ""), (680, -1420, 0, ""), (630, -1420, 0, ""),
+             (730, -1370, 2, "")]
 
 # Roomba Start points and end points (Start point x, Start point y, Travel distance x, Travel distance y)
 RoombaSpawn = [(1200, -810, 0, 450), (1300, -840, 0, 500), (1410, -870, 0, 550),
@@ -686,7 +684,6 @@ while Running:
         roomba.item_detected = roomba.detects()
 
     # Draws the background
-    screen.fill(White)
     screen.blit(Background, (X - 1800, Y - 4200))
     print -X + 640, -Y + 320
     # Moves the Roombas
