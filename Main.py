@@ -32,20 +32,19 @@ Green = (0, 255, 0)
 Blue = (0, 0, 255)
 Yellow = (255, 255, 0)
 Black = (0, 0, 0)
-CollisionColour = (83, 11, 2)
+CollisionColour = (81, 10, 1)
 
 # Rectangles
-rect = (0, 650, 70, 70)
-rect2 = (80, 650, 70, 70)
-rect3 = (160, 650, 70, 70)
+HudBox = [(0, 650, 70, 70), (80, 650, 70, 70), (160, 650, 70, 70)]
 
 # Font
 TextFont = pygame.font.SysFont("impact", 60)
 
 # Importing the art
-BackgroundSmall = pygame.image.load("map.png")
-Background = pygame.transform.scale(BackgroundSmall, (5000,5000))
-CharacterModel = pygame.image.load("character2.png")
+BackgroundLarge = pygame.image.load("Art-assets/Map.png")
+Background = pygame.transform.scale(BackgroundLarge, (5000,5000))
+CharacterModel = pygame.image.load("Art-assets/Characters/Character.png")
+ScientistModel = pygame.image.load("Art-assets/Characters/Scientist.png")
 RoombaModel = pygame.image.load("Art-assets/Enemies/Roomba (passive).png")
 RoombaModelHostile = pygame.image.load("Art-assets/Enemies/Roomba (hostile).png")
 PaintballAmmoIcon = pygame.image.load("Art-assets/Paintgun-ammo/AmmoIcon.png")
@@ -76,9 +75,9 @@ class CharacterClass:
         self.rotation = 0
 
         # Item counters
-        self.paint_ball_ammo = 999
-        self.paint_grenade = 999
-        self.rubbish = 999
+        self.paint_ball_ammo = 9
+        self.paint_grenade = 1
+        self.rubbish = 0
 
         # Paintball properties
         self.ball_position = (self.pos_x, self.pos_y)
@@ -151,6 +150,8 @@ class CharacterClass:
                 self.rubbish += 1
             if item_counter == 2:
                 self.paint_grenade += 1
+            if item_counter == 3:
+                self.rubbish += 3
 
         # Draws a paintball if conditions are met
         if self.ball_spawn:
@@ -177,15 +178,10 @@ class CharacterClass:
                 # Draws Rubbish
                 screen.blit(self.random_rubbish, self.projectile_position)
 
-        # Draws the HUD
-        pygame.draw.rect(screen, Black, rect)
-        pygame.draw.rect(screen, Black, rect2)
-        pygame.draw.rect(screen, Black, rect3)
-
         # Updates the text
-        fontimg = TextFont.render(str(self.paint_ball_ammo), 1, Yellow)
-        fontimg2 = TextFont.render(str(self.rubbish), 1, Yellow)
-        fontimg3 = TextFont.render(str(self.paint_grenade), 1, Yellow)
+        hud_text = [(TextFont.render(str(self.paint_ball_ammo), 1, Yellow)),
+                    (TextFont.render(str(self.rubbish), 1, Yellow)),
+                    (TextFont.render(str(self.paint_grenade), 1, Yellow))]
 
         # centers the text
         if self.paint_ball_ammo > 9:
@@ -193,10 +189,14 @@ class CharacterClass:
         else:
             font_center = 20
 
+        # Draws the HUD
+        for x in xrange(len(HudBox)):
+            pygame.draw.rect(screen, Black, HudBox[x])
+
         # Draw the text
-        screen.blit(fontimg, (font_center, 650))
-        screen.blit(fontimg2, (100, 650))
-        screen.blit(fontimg3, (180, 650))
+        screen.blit(hud_text[0], (font_center, 650))
+        screen.blit(hud_text[1], (100, 650))
+        screen.blit(hud_text[2], (180, 650))
 
         # Draw the icons
         screen.blit(PaintballAmmoIcon, (3, 580))
@@ -240,6 +240,13 @@ class CharacterClass:
                     mouse_x, mouse_y = pygame.mouse.get_pos()
                     vector = sub((mouse_x, mouse_y), self.ball_position)
 
+                    """
+                    red1 = screen.get_at((mouse_x, mouse_y)).r
+                    green1 = screen.get_at((mouse_x, mouse_y)).g
+                    blue1 = screen.get_at((mouse_x, mouse_y)).b
+                    print red1, green1, blue1
+                    """
+
                     # Gets the sum of the vector and divides by 20 (increases the speed)
                     vector_total = ((math.sqrt(vector[0] ** 2)) + (math.sqrt(vector[1] ** 2))) / 20
 
@@ -259,7 +266,9 @@ class CharacterClass:
             if roomba.pos_x + X < self.ball_position[0] < roomba.pos_x + X + 64:
                 if roomba.pos_y + Y < self.ball_position[1] < roomba.pos_y + Y + 64:
                     print "hit"
-                    roombas.remove(roomba)
+                    roomba.delay = 100
+                    self.ball_spawn = False
+                    return
 
     def throw_projectile(self, projectile, projectile_delay, projectile_type):
         """Code for throwing projectiles"""
@@ -342,12 +351,14 @@ class Items:
 
     def draw(self):
         """draws the items on the screen"""
-        if self.item == 1:
-            screen.blit(self.rubbish_type, (X + self.pos_x, Y + self.pos_y))
         if self.item == 0:
             screen.blit(PaintballAmmo, (X + self.pos_x, Y + self.pos_y))
+        if self.item == 1:
+            screen.blit(self.rubbish_type, (X + self.pos_x, Y + self.pos_y))
         if self.item == 2:
             screen.blit(PaintGrenade, (X + self.pos_x, Y + self.pos_y))
+        if self.item == 3:
+            screen.blit(GarbageCan, (X + self.pos_x, Y + self.pos_y))
 
     def player_collision(self):
         """detects collision with the player"""
@@ -363,7 +374,10 @@ class Items:
         if roomba.pos_x - 64 + X < X + self.pos_x < roomba.pos_x + 64 + X:
             if roomba.pos_y - 64 + Y < Y + self.pos_y < roomba.pos_y + 64 + Y:
                 # Removes the item from the list
-                listItems.remove(self)
+                try:
+                    listItems.remove(self)
+                except:
+                    pass
 
 
 class Roomba:
@@ -390,6 +404,7 @@ class Roomba:
         self.detect = 0
         self.returning = False
 
+        self.delay = 0
         self.switch = True
 
     def move(self):
@@ -426,25 +441,18 @@ class Roomba:
         vector_y += Height/2
 
         # Creates the four points for the roomba cone of view
-        point1 = (vector_x - 20, vector_y)
-        point2 = (vector_x + 20, vector_y)
-        point3 = (vector_x + 150, vector_y + 300)
-        point4 = (vector_x - 150, vector_y + 300)
+        points = [(vector_x - 20, vector_y), (vector_x + 20, vector_y),
+                  (vector_x + 150, vector_y + 300), (vector_x - 150, vector_y + 300)]
 
-        # Rotates the points for the cone of view
-        point1 = rotate_point((self.pos_x + X, self.pos_y + Y), point1, -self.rotate)
-        point2 = rotate_point((self.pos_x + X, self.pos_y + Y), point2, -self.rotate)
-        point3 = rotate_point((self.pos_x + X, self.pos_y + Y), point3, -self.rotate)
-        point4 = rotate_point((self.pos_x + X, self.pos_y + Y), point4, -self.rotate)
-
-        # moves the cone of view so its centered on the roomba
-        point1 = (int(point1[0]) + 32, int(point1[1]) + 32)
-        point2 = (int(point2[0]) + 32, int(point2[1]) + 32)
-        point3 = (int(point3[0]) + 32, int(point3[1]) + 32)
-        point4 = (int(point4[0]) + 32, int(point4[1]) + 32)
+        for j in xrange(len(points)):
+            # Rotates the points for the cone of view
+            points[j] = rotate_point((self.pos_x + X, self.pos_y + Y), points[j], -self.rotate)
+            # moves the cone of view so its centered on the roomba
+            points[j] = (int(points[j][0]) + 32, int(points[j][1]) + 32)
 
         # Creates a polygon out of the points
-        area = point1, point2, point3, point4
+        area = points[0], points[1], points[2], points[3]
+
         # Draws the polygon in red
         pygame.draw.polygon(screen, Red, area)
         # Gets the colour of the pixel at the character position
@@ -506,7 +514,7 @@ class Roomba:
         # sets moving to true
         can_move = True
 
-        # attempts to stop the roombas passing through walls"
+        # stop the roombas passing through walls"
         if self.rotate < 45:
             if not wall_check("down", self.pos_x + X + 32, self.pos_y + Y + 32):
                 can_move = False
@@ -597,6 +605,14 @@ def sub(u, v):
     return [u[i]-v[i] for i in range(len(u))]
     # http://stackoverflow.com/questions/33172753/how-to-have-an-object-run-directly-away-from-mouse-at-a-constant-speed/33173194#33173194
 
+
+def draw_scientist():
+    """Rotates the Scientist to face the point"""
+    vector = sub((X + 800, Y - 1250), CharacterPos)
+    rotate = (math.atan2(vector[0], vector[1]) * 57.2958)
+    scientist_rotate = pygame.transform.rotate(ScientistModel, rotate)
+    screen.blit(scientist_rotate, (X + 800, Y - 1250))
+
 # Create character
 PlayCharacter = CharacterClass()
 
@@ -606,14 +622,27 @@ roombas = []
 # List of Items
 listItems = []
 
-# Item properties (x coord, y coord, item type, used for throwing rubbish)
-ItemSpawn = [(800, 600, 0, ""), (800, 500, 0, ""), (900, 600, 2, "")]
+# Item properties (x coord, y coord, item type, used for throwing rubbish) (0 = AMMO, 2 = GRENADE, 3 = RUBBISH)
+ItemSpawn = [(860, 150, 3, ""), (380, 150, 3, ""), (750, -1885, 3, ""),
+             (730, -1420, 0, ""), (680, -1420, 0, ""), (630, -1420, 0, ""),
+             (730, -1370, 2, "")]
 
 # Roomba Start points and end points (Start point x, Start point y, Travel distance x, Travel distance y)
 RoombaSpawn = [(1200, -810, 0, 450), (1300, -840, 0, 500), (1410, -870, 0, 550),
                (1510, -900, 0, 600), (-205, -825, 0, 400), (-90, -480, 0, -400),
                (350, -945, 600, 0), (1000, -1350, 250, 0), (5, -1530, 250, 0),
-               (250, -1385, -250, 0), (5, -1290, 250, 0), (250, -1170, -250, 0)]
+               (250, -1385, -250, 0), (5, -1290, 250, 0), (250, -1170, -250, 0),
+               (1335, -1900, 500, 0), (1335, -1800, 550, 0), (1335, -1700, 600, 0),
+               (1335, -1600, 650, 0), (-550, -2350, 0, 600), (-650, -2350, 0, 600),
+               (-750, -2350, 0, 600), (-850, -2350, 0, 600), (1750, -2260, 0, 250),
+               (1850, -2245, 0, 300), (1950, -2335, 0, 500), (2050, -2400, 0, 700),
+               (1500, -2450, -1600, 0), (1400, -2370, -1550, 0), (1300, -2290, -1500, 0),
+               (1400, -2210, -1550, 0), (1500, -2140, -1600, 0), (-300, -2950, 0, 400),
+               (-400, -2950, 0, 400), (-500, -2950, 0, 400), (-600, -2950, 0, 400),
+               (-300, -2850, 0, 400), (-400, -2850, 0, 400), (-500, -2850, 0, 400),
+               (-600, -2850, 0, 400), (445, -2995, -500, 0), (900, -3160, 300, 300),
+               (970, -2830, 300, -300), (1040, -3160, 300, 300), (1110, -2830, 300, -300),
+               (1180, -3160, 300, 300), (1250, -2830, 300, -300)]
 
 # Create roombas
 for value in RoombaSpawn:
@@ -655,25 +684,25 @@ while Running:
         roomba.item_detected = roomba.detects()
 
     # Draws the background
-    screen.fill(White)
     screen.blit(Background, (X - 1800, Y - 4200))
-    #print -X + 640, -Y + 320
+    print -X + 640, -Y + 320
     # Moves the Roombas
     for roomba in roombas:
-
-        if roomba.returning:
-            roomba.return_to_position()
-        else:
-            if roomba.detect == 0:
-                roomba.move()
-            elif roomba.detect == 2:
-                roomba.chase_item(roomba.item_detected)
+        if roomba.delay < 1:
+            if roomba.returning:
+                roomba.return_to_position()
             else:
-                roomba.chase_player()
-
+                if roomba.detect == 0:
+                    roomba.move()
+                elif roomba.detect == 2:
+                    roomba.chase_item(roomba.item_detected)
+                else:
+                    roomba.chase_player()
+        else:
+            roomba.delay -= 1
         roomba.draw()
         roomba.collision()
-
+    draw_scientist()
     # Rotates the Character
     PlayCharacter.rotate()
     # Updates the Character and the HUD
