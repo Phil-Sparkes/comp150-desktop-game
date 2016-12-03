@@ -23,7 +23,7 @@ ProjectileDelay = 0
 Y = 0
 X = 0
 
-CharacterSpeed = 5
+CharacterSpeed = 15
 
 # Defining colours for later use
 White = (255, 255, 255)
@@ -32,7 +32,7 @@ Green = (0, 255, 0)
 Blue = (0, 0, 255)
 Yellow = (255, 255, 0)
 Black = (0, 0, 0)
-CollisionColour = (83, 11, 2)
+CollisionColour = (82, 10, 1)
 
 # Rectangles
 rect = (0, 650, 70, 70)
@@ -43,9 +43,10 @@ rect3 = (160, 650, 70, 70)
 TextFont = pygame.font.SysFont("impact", 60)
 
 # Importing the art
-BackgroundSmall = pygame.image.load("map.png")
+BackgroundSmall = pygame.image.load("map2.png")
 Background = pygame.transform.scale(BackgroundSmall, (5000,5000))
 CharacterModel = pygame.image.load("character2.png")
+ScientistModel = pygame.image.load("Art-assets/Characters/Scientist.png")
 RoombaModel = pygame.image.load("Art-assets/Enemies/Roomba (passive).png")
 RoombaModelHostile = pygame.image.load("Art-assets/Enemies/Roomba (hostile).png")
 PaintballAmmoIcon = pygame.image.load("Art-assets/Paintgun-ammo/AmmoIcon.png")
@@ -57,6 +58,7 @@ BananaPeel = pygame.image.load("Art-assets/Rubbish\Banana peel.png")
 BeerBottle = pygame.image.load("Art-assets/Rubbish/Beer bottle.png")
 WaterBottle = pygame.image.load("Art-assets/Rubbish/Bottle.png")
 GarbageCan = pygame.image.load("Art-assets/Rubbish/Garbage can.png")
+#GarbageCanOpen = pygame.image.load("Art-assests/character2.png")
 RustyCan = pygame.image.load("Art-assets/Rubbish/Rusty Can.png")
 
 # Draws the screen
@@ -76,9 +78,9 @@ class CharacterClass:
         self.rotation = 0
 
         # Item counters
-        self.paint_ball_ammo = 999
-        self.paint_grenade = 999
-        self.rubbish = 999
+        self.paint_ball_ammo = 10
+        self.paint_grenade = 0
+        self.rubbish = 0
 
         # Paintball properties
         self.ball_position = (self.pos_x, self.pos_y)
@@ -151,6 +153,8 @@ class CharacterClass:
                 self.rubbish += 1
             if item_counter == 2:
                 self.paint_grenade += 1
+            if item_counter == 3:
+                self.rubbish += 3
 
         # Draws a paintball if conditions are met
         if self.ball_spawn:
@@ -259,7 +263,9 @@ class CharacterClass:
             if roomba.pos_x + X < self.ball_position[0] < roomba.pos_x + X + 64:
                 if roomba.pos_y + Y < self.ball_position[1] < roomba.pos_y + Y + 64:
                     print "hit"
-                    roombas.remove(roomba)
+                    roomba.delay = 100
+                    self.ball_spawn = False
+                    return
 
     def throw_projectile(self, projectile, projectile_delay, projectile_type):
         """Code for throwing projectiles"""
@@ -342,12 +348,14 @@ class Items:
 
     def draw(self):
         """draws the items on the screen"""
-        if self.item == 1:
-            screen.blit(self.rubbish_type, (X + self.pos_x, Y + self.pos_y))
         if self.item == 0:
             screen.blit(PaintballAmmo, (X + self.pos_x, Y + self.pos_y))
+        if self.item == 1:
+            screen.blit(self.rubbish_type, (X + self.pos_x, Y + self.pos_y))
         if self.item == 2:
             screen.blit(PaintGrenade, (X + self.pos_x, Y + self.pos_y))
+        if self.item == 3:
+            screen.blit(GarbageCan, (X + self.pos_x, Y + self.pos_y))
 
     def player_collision(self):
         """detects collision with the player"""
@@ -363,7 +371,10 @@ class Items:
         if roomba.pos_x - 64 + X < X + self.pos_x < roomba.pos_x + 64 + X:
             if roomba.pos_y - 64 + Y < Y + self.pos_y < roomba.pos_y + 64 + Y:
                 # Removes the item from the list
-                listItems.remove(self)
+                try:
+                    listItems.remove(self)
+                except:
+                    pass
 
 
 class Roomba:
@@ -390,6 +401,7 @@ class Roomba:
         self.detect = 0
         self.returning = False
 
+        self.delay = 0
         self.switch = True
 
     def move(self):
@@ -413,7 +425,7 @@ class Roomba:
         if CharacterPos[0] - 50 < X + self.pos_x + 47 < CharacterPos[0] + 50:
             if CharacterPos[1] - 50 < Y + self.pos_y + 47 < CharacterPos[1] + 50:
                 print "game over"
-                execfile("Game over screen.py")
+                #execfile("Game over screen.py")
 
     def detects(self):
         """Checks if roomba detects player or items"""
@@ -597,6 +609,14 @@ def sub(u, v):
     return [u[i]-v[i] for i in range(len(u))]
     # http://stackoverflow.com/questions/33172753/how-to-have-an-object-run-directly-away-from-mouse-at-a-constant-speed/33173194#33173194
 
+
+def draw_scientist():
+    """Rotates the Scientist to face the point"""
+    vector = sub((X + 540, Y - 1250), CharacterPos)
+    rotate = (math.atan2(vector[0], vector[1]) * 57.2958)
+    scientist_rotate = pygame.transform.rotate(ScientistModel, rotate)
+    screen.blit(scientist_rotate, (X + 640, Y - 1350))
+
 # Create character
 PlayCharacter = CharacterClass()
 
@@ -606,14 +626,25 @@ roombas = []
 # List of Items
 listItems = []
 
-# Item properties (x coord, y coord, item type, used for throwing rubbish)
-ItemSpawn = [(800, 600, 0, ""), (800, 500, 0, ""), (900, 600, 2, "")]
+# Item properties (x coord, y coord, item type, used for throwing rubbish) (0 = AMMO, 2 = GRENADE, 3 = RUBBISH)
+ItemSpawn = [(860, 150, 3, ""), (380, 150, 3, ""), (750, -1885, 3, "")]
 
 # Roomba Start points and end points (Start point x, Start point y, Travel distance x, Travel distance y)
 RoombaSpawn = [(1200, -810, 0, 450), (1300, -840, 0, 500), (1410, -870, 0, 550),
                (1510, -900, 0, 600), (-205, -825, 0, 400), (-90, -480, 0, -400),
                (350, -945, 600, 0), (1000, -1350, 250, 0), (5, -1530, 250, 0),
-               (250, -1385, -250, 0), (5, -1290, 250, 0), (250, -1170, -250, 0)]
+               (250, -1385, -250, 0), (5, -1290, 250, 0), (250, -1170, -250, 0),
+               (1335, -1900, 500, 0), (1335, -1800, 550, 0), (1335, -1700, 600, 0),
+               (1335, -1600, 650, 0), (-550, -2350, 0, 600), (-650, -2350, 0, 600),
+               (-750, -2350, 0, 600), (-850, -2350, 0, 600), (1750, -2260, 0, 250),
+               (1850, -2245, 0, 300), (1950, -2335, 0, 500), (2050, -2400, 0, 700),
+               (1500, -2450, -1600, 0), (1400, -2370, -1550, 0), (1300, -2290, -1500, 0),
+               (1400, -2210, -1550, 0), (1500, -2140, -1600, 0), (-300, -2950, 0, 400),
+               (-400, -2950, 0, 400), (-500, -2950, 0, 400), (-600, -2950, 0, 400),
+               (-300, -2850, 0, 400), (-400, -2850, 0, 400), (-500, -2850, 0, 400),
+               (-600, -2850, 0, 400), (445, -2995, -500, 0), (900, -3160, 300, 300),
+               (970, -2830, 300, -300), (1040, -3160, 300, 300), (1110, -2830, 300, -300),
+               (1180, -3160, 300, 300), (1250, -2830, 300, -300)]
 
 # Create roombas
 for value in RoombaSpawn:
@@ -657,23 +688,24 @@ while Running:
     # Draws the background
     screen.fill(White)
     screen.blit(Background, (X - 1800, Y - 4200))
-    #print -X + 640, -Y + 320
+    print -X + 640, -Y + 320
     # Moves the Roombas
     for roomba in roombas:
-
-        if roomba.returning:
-            roomba.return_to_position()
-        else:
-            if roomba.detect == 0:
-                roomba.move()
-            elif roomba.detect == 2:
-                roomba.chase_item(roomba.item_detected)
+        if roomba.delay < 1:
+            if roomba.returning:
+                roomba.return_to_position()
             else:
-                roomba.chase_player()
-
+                if roomba.detect == 0:
+                    roomba.move()
+                elif roomba.detect == 2:
+                    roomba.chase_item(roomba.item_detected)
+                else:
+                    roomba.chase_player()
+        else:
+            roomba.delay -= 1
         roomba.draw()
         roomba.collision()
-
+    draw_scientist()
     # Rotates the Character
     PlayCharacter.rotate()
     # Updates the Character and the HUD
