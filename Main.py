@@ -276,7 +276,6 @@ class CharacterClass:
         for roomba in roombas:
             if roomba.pos_x + X < self.ball_position[0] < roomba.pos_x + X + 64:
                 if roomba.pos_y + Y < self.ball_position[1] < roomba.pos_y + Y + 64:
-                    print "hit"
                     roomba.delay = 100
                     self.ball_spawn = False
                     return
@@ -319,7 +318,6 @@ class CharacterClass:
         for roomba in roombas:
             if roomba.pos_x + X - 200 < self.projectile_position[0] < roomba.pos_x + X + 200:
                 if roomba.pos_y + Y - 200 < self.projectile_position[1] < roomba.pos_y + Y + 200:
-                    print "Ka-boom!"
                     roomba.delay = 200
 
     def item_drop(self):
@@ -448,7 +446,6 @@ class Roomba:
         """Checks for collision with the player"""
         if CharacterPos[0] - 50 < X + self.pos_x + 47 < CharacterPos[0] + 50:
             if CharacterPos[1] - 50 < Y + self.pos_y + 47 < CharacterPos[1] + 50:
-                print "game over"
                 execfile("Game over screen.py")
 
     def detects(self):
