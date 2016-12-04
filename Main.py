@@ -672,8 +672,9 @@ for value in ItemSpawn:
     item = Items(value[0], value[1], value[2], value[3])
     listItems.append(item)
 
-# Plays the soundtrack
-winsound.PlaySound("Sound/soundtrack", winsound.SND_ASYNC)
+# Plays the soundtrack and loops
+winsound.PlaySound("Sound/soundtrack", winsound.SND_ASYNC | winsound.SND_LOOP)
+# http://ericskiff.com/music/
 
 # MainLoop
 while Running:
