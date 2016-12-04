@@ -42,8 +42,7 @@ TextFont = pygame.font.SysFont("impact", 60)
 
 # Importing the art
 BackgroundLarge = pygame.image.load("Art-assets/Map.png")
-Background = pygame.transform.scale(BackgroundLarge, (5000,5000))
-CharacterModel = pygame.image.load("Art-assets/Characters/Character.png")
+Background = pygame.transform.scale(BackgroundLarge, (5000, 5000))
 ScientistModel = pygame.image.load("Art-assets/Characters/Scientist.png")
 RoombaModel = pygame.image.load("Art-assets/Enemies/Roomba (passive).png")
 RoombaModelHostile = pygame.image.load("Art-assets/Enemies/Roomba (hostile).png")
@@ -58,6 +57,13 @@ WaterBottle = pygame.image.load("Art-assets/Rubbish/Bottle.png")
 GarbageCan = pygame.image.load("Art-assets/Rubbish/Garbage can.png")
 RustyCan = pygame.image.load("Art-assets/Rubbish/Rusty Can.png")
 
+CharacterAnim = [(pygame.image.load("Animations/char1.png")),
+                 (pygame.image.load("Animations/char2.png")),
+                 (pygame.image.load("Animations/char3.png")),
+                 (pygame.image.load("Animations/char4.png")),
+                 (pygame.image.load("Animations/char5.png"))]
+
+
 # Draws the screen
 screen = pygame.display.set_mode((Width, Height))
 
@@ -70,6 +76,11 @@ class CharacterClass:
         # positions the player in the center of the screen
         self.pos_x = Width / 2
         self.pos_y = Height / 2
+
+        # used for animation
+        self.moving = False
+        self.frame = 0
+        self.keyframe = 0
 
         # Player rotation
         self.rotation = 0
@@ -137,7 +148,9 @@ class CharacterClass:
                     self.item_drop()
 
         # Draws the character
-        character_rotation = pygame.transform.rotate(CharacterModel, self.rotation)
+        if self.moving:
+            self.character_animation()
+        character_rotation = pygame.transform.rotate((CharacterAnim[self.keyframe]), self.rotation)
         screen.blit(character_rotation, (Width / 2 - 32, Height / 2 - 32))
 
         # Draws the Items and keeps track of how many the player has
@@ -207,16 +220,20 @@ class CharacterClass:
         """Player movement, returns an X and Y value"""
         # Checks what keys are being pressed
         key_pressed = pygame.key.get_pressed()
-
+        self.moving = False
         # Direction character is moving in
         if key_pressed[pygame.K_w] and wall_check("up", CharacterPos[0], CharacterPos[1]):
             y += CharacterSpeed
+            self.moving = True
         if key_pressed[pygame.K_s] and wall_check("down", CharacterPos[0], CharacterPos[1]):
             y -= CharacterSpeed
+            self.moving = True
         if key_pressed[pygame.K_a] and wall_check("left", CharacterPos[0], CharacterPos[1]):
             x += CharacterSpeed
+            self.moving = True
         if key_pressed[pygame.K_d] and wall_check("right", CharacterPos[0], CharacterPos[1]):
             x -= CharacterSpeed
+            self.moving = True
 
         return x, y
 
@@ -239,13 +256,6 @@ class CharacterClass:
                     # Creates a vector
                     mouse_x, mouse_y = pygame.mouse.get_pos()
                     vector = sub((mouse_x, mouse_y), self.ball_position)
-
-                    """
-                    red1 = screen.get_at((mouse_x, mouse_y)).r
-                    green1 = screen.get_at((mouse_x, mouse_y)).g
-                    blue1 = screen.get_at((mouse_x, mouse_y)).b
-                    print red1, green1, blue1
-                    """
 
                     # Gets the sum of the vector and divides by 20 (increases the speed)
                     vector_total = ((math.sqrt(vector[0] ** 2)) + (math.sqrt(vector[1] ** 2))) / 20
@@ -309,7 +319,7 @@ class CharacterClass:
             if roomba.pos_x + X - 200 < self.projectile_position[0] < roomba.pos_x + X + 200:
                 if roomba.pos_y + Y - 200 < self.projectile_position[1] < roomba.pos_y + Y + 200:
                     print "Ka-boom!"
-                    roombas.remove(roomba)
+                    roomba.delay = 200
 
     def item_drop(self):
         # Creates a new rubbish item
@@ -333,6 +343,16 @@ class CharacterClass:
                 return False
 
         return True
+
+    def character_animation(self):
+        self.frame += 1
+
+        if self.frame > 5:
+            self.keyframe += 1
+            self.frame = 0
+
+        if self.keyframe == 5:
+            self.keyframe = 0
 
 
 class Items:
@@ -678,14 +698,13 @@ while Running:
         PlayCharacter.paint_grenade, ProjectileDelay = PlayCharacter.throw_projectile(PlayCharacter.paint_grenade, ProjectileDelay, "PaintGrenade")
     if pressed[pygame.K_r] and PlayCharacter.rubbish > 0 and PlayCharacter.projectile_spawn is False:
         PlayCharacter.rubbish, ProjectileDelay = PlayCharacter.throw_projectile(PlayCharacter.rubbish, ProjectileDelay, "Rubbish")
-
+    screen.blit(Background, (X - 1800, Y - 4200))
     # Checks roomba detection
     for roomba in roombas:
         roomba.item_detected = roomba.detects()
 
     # Draws the background
     screen.blit(Background, (X - 1800, Y - 4200))
-    print -X + 640, -Y + 320
     # Moves the Roombas
     for roomba in roombas:
         if roomba.delay < 1:
