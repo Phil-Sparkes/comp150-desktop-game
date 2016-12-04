@@ -71,6 +71,7 @@ screen = pygame.display.set_mode((Width, Height))
 # Adds the clock
 Clock = pygame.time.Clock()
 
+
 class CharacterClass:
     def __init__(self):
         # positions the player in the center of the screen
@@ -674,9 +675,10 @@ for value in ItemSpawn:
     item = Items(value[0], value[1], value[2], value[3])
     listItems.append(item)
 
+# Plays the soundtrack
+winsound.PlaySound("Sound/soundtrack", winsound.SND_ASYNC)
 
 # MainLoop
-winsound.PlaySound("Sound/soundtrack", winsound.SND_ASYNC)
 while Running:
 
     Clock.tick(60)
