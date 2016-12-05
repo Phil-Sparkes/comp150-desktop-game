@@ -58,12 +58,24 @@ WaterBottle = pygame.image.load("Art-assets/Rubbish/Bottle.png")
 GarbageCan = pygame.image.load("Art-assets/Rubbish/Garbage can.png")
 RustyCan = pygame.image.load("Art-assets/Rubbish/Rusty Can.png")
 
-CharacterAnim = [(pygame.image.load("Animations/char1.png")),
-                 (pygame.image.load("Animations/char2.png")),
-                 (pygame.image.load("Animations/char3.png")),
-                 (pygame.image.load("Animations/char4.png")),
-                 (pygame.image.load("Animations/char5.png"))]
+CharacterAnim = []
+# Loads in all the image files for character animation
+for x in xrange(5):
+    CharacterAnim.append(pygame.image.load("Animations/char%d.png" % (x + 1)))
 
+GrenadeExplosion = []
+# Loads in all the image files for grenade explosion
+for j in xrange(4):
+    if j == 0:
+        colour = 'Blue'
+    elif j == 1:
+        colour = 'Yellow'
+    elif j == 2:
+        colour = 'Red'
+    elif j == 3:
+        colour = 'Green'
+    for x in xrange(10):
+        GrenadeExplosion.append(pygame.image.load("Animations/%sEx%d.png" % (colour, (x + 1))))
 
 # Draws the screen
 screen = pygame.display.set_mode((Width, Height))
@@ -88,7 +100,7 @@ class CharacterClass:
 
         # Item counters
         self.paint_ball_ammo = 9
-        self.paint_grenade = 1
+        self.paint_grenade = 99
         self.rubbish = 0
 
         # Paintball properties
@@ -313,7 +325,9 @@ class CharacterClass:
     def grenade_explosion(self):
         """The explosion of the grenade"""
         # draws a rectangle for the blast radius
-        pygame.draw.circle(screen, Yellow, self.projectile_position, 200)
+        colour_explosion = random.choice((0, 10, 20, 30))
+        for x in xrange(10):
+            screen.blit(GrenadeExplosion[x + colour_explosion], (self.projectile_position[0] - 50, self.projectile_position[1] - 50,))
         # checks for roombas caught in the explosion
         for roomba in roombas:
             if roomba.pos_x + X - 200 < self.projectile_position[0] < roomba.pos_x + X + 200:
