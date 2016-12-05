@@ -99,8 +99,8 @@ class CharacterClass:
         self.rotation = 0
 
         # Item counters
-        self.paint_ball_ammo = 9
-        self.paint_grenade = 99
+        self.paint_ball_ammo = 0
+        self.paint_grenade = 0
         self.rubbish = 0
 
         # Paintball properties
