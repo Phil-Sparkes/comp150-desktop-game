@@ -9,7 +9,7 @@ Height = 720
 
 GameOverScreen = pygame.image.load("Art-assets/GameOverScreen.png")
 
-screen = pygame.display.set_mode((Width, Height))
+screen = pygame.display.set_mode((Width, Height), pygame.FULLSCREEN)
 screen.blit(GameOverScreen,(0,0))
 pygame.display.flip()
 

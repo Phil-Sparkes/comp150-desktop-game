@@ -12,7 +12,7 @@ PlayButton = pygame.image.load("TitleScreen/PlayButton.png")
 PlayButtonGlow = pygame.image.load("TitleScreen/PlayButtonGlow.png")
 TitleScreenScale = pygame.transform.scale(TitleScreen, (Width, Height))
 
-screen = pygame.display.set_mode((Width, Height))
+screen = pygame.display.set_mode((Width, Height), pygame.FULLSCREEN)
 
 while Running:
     screen.blit(TitleScreenScale, (0, 0))

@@ -78,7 +78,7 @@ for j in xrange(4):
         GrenadeExplosion.append(pygame.image.load("Animations/%sEx%d.png" % (colour, (x + 1))))
 
 # Draws the screen
-screen = pygame.display.set_mode((Width, Height))
+screen = pygame.display.set_mode((Width, Height), pygame.FULLSCREEN)
 
 # Adds the clock
 Clock = pygame.time.Clock()
